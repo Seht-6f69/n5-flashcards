@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>แฟลชการ์ด N5</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&family=Noto+Sans+Thai:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* VOICE everyday study tool, friendly but tidy
+   IDEA a Japanese 単語帳: ring-bound word cards flipped on the train
+   PICTURE the card itself, large, with a ring hole and a stamp when learned
+   COLOUR indigo ai band, white card, vermilion shu accent, leaf green for "learned"
+   TYPE Zen Maru Gothic for Japanese + Noto Sans Thai
+   LAYOUT title + filters on indigo band, card centred below, controls under it; phone: same order stacked */
+:root{color-scheme:light dark;--bg:light-dark(#f4f5f8,#0e1424);--band:light-dark(#1f3a6b,#16264a);--card:light-dark(#ffffff,#1c2742);--ink:light-dark(#141a2b,#eef1f8);--soft:light-dark(#5b6479,#a8b1c8);--line:light-dark(#d9dde6,#2e3b5c);--shu:#d7372b;--ok:light-dark(#1f8a4c,#4cc283);--chip:light-dark(#ffffff22,#ffffff1a)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.55 "Noto Sans Thai","Zen Maru Gothic",system-ui,sans-serif;overflow-x:clip}
+.jp{font-family:"Zen Maru Gothic","Hiragino Maru Gothic ProN","Noto Sans JP",sans-serif}
+.band{background:var(--band);color:#fff;padding:22px max(5vw,16px) 18px}
+.top{max-width:1100px;margin:0 auto;display:flex;flex-wrap:wrap;gap:12px 24px;align-items:end;justify-content:space-between}
+h1{margin:0;font:700 clamp(28px,4vw,40px)/1.1 "Zen Maru Gothic","Noto Sans Thai",sans-serif;letter-spacing:-.01em}
+h1 small{display:block;font:500 15px/1.4 "Noto Sans Thai",sans-serif;opacity:.8;margin-top:6px;letter-spacing:0}
+.tabs{display:flex;gap:4px;background:#ffffff1f;padding:4px;border-radius:999px}
+.tabs button{border:0;background:none;color:#fff;font:500 15px "Noto Sans Thai",sans-serif;padding:10px 16px;border-radius:999px;cursor:pointer;min-height:44px}
+.tabs button[aria-pressed=true]{background:#fff;color:var(--band)}
+.chips{max-width:1100px;margin:16px auto 0;display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:thin}
+.chips button{flex:none;border:1px solid #ffffff40;background:var(--chip);color:#fff;border-radius:999px;padding:8px 14px;font:500 14px "Noto Sans Thai",sans-serif;cursor:pointer;min-height:40px;white-space:nowrap}
+.chips button[aria-pressed=true]{background:#fff;color:var(--band);border-color:#fff}
+.chips b{font-weight:500;opacity:.65;margin-left:4px}
+main{max-width:1100px;margin:0 auto;padding:22px max(4vw,16px) 48px}
+.bar{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between;margin-bottom:16px}
+.prog{flex:1 1 260px;display:flex;align-items:center;gap:12px;font-size:14px;color:var(--soft)}
+.track{flex:1;height:8px;background:var(--line);border-radius:8px;overflow:hidden}
+.track i{display:block;height:100%;background:var(--ok);width:0;transition:width .3s}
+.opts{display:flex;flex-wrap:wrap;gap:8px}
+.tog{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;padding:8px 12px;font:14px "Noto Sans Thai",sans-serif;cursor:pointer;min-height:40px}
+.tog[aria-pressed=true]{border-color:var(--band);box-shadow:inset 0 0 0 1px var(--band);color:light-dark(var(--band),#cfe0ff)}
+.stage{perspective:1400px;max-width:620px;margin:0 auto}
+.card{position:relative;height:clamp(300px,52vh,400px);cursor:pointer;transform-style:preserve-3d;transition:transform .45s cubic-bezier(.2,.7,.2,1)}
+.card.flip{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;background:var(--card);border:1px solid var(--line);border-radius:22px;box-shadow:0 2px 0 var(--line),0 14px 30px -18px #0f1c3a66;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px 24px;text-align:center}
+.back{transform:rotateY(180deg)}
+.face::before{content:"";position:absolute;left:22px;top:22px;width:16px;height:16px;border-radius:50%;background:var(--bg);box-shadow:inset 0 2px 3px #0003}
+.cat{position:absolute;right:20px;top:18px;font-size:13px;color:var(--soft)}
+.num{position:absolute;left:48px;top:18px;font-size:13px;color:var(--soft)}
+.read{font-size:clamp(17px,3vw,22px);color:var(--soft);min-height:1.4em}
+.word{font-weight:700;font-size:clamp(40px,10vw,76px);line-height:1.15;letter-spacing:-.01em;overflow-wrap:anywhere}
+.word.long{font-size:clamp(28px,7vw,48px)}
+.roma{font-size:16px;color:var(--soft);margin-top:6px;min-height:1.5em}
+.th{font-weight:700;font-size:clamp(28px,6vw,42px);line-height:1.25}
+.back .word{font-size:clamp(24px,5vw,34px);margin-top:14px}
+.hint{position:absolute;bottom:16px;font-size:13px;color:var(--soft)}
+.stamp{position:absolute;right:22px;bottom:18px;width:64px;height:64px;border:3px solid var(--shu);color:var(--shu);border-radius:50%;display:grid;place-items:center;font:900 15px/1 "Zen Maru Gothic",sans-serif;transform:rotate(-14deg);opacity:0;transition:opacity .2s}
+.known .stamp{opacity:.85}
+.say{position:absolute;right:16px;bottom:14px;width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:var(--card);color:var(--ink);display:grid;place-items:center;cursor:pointer}
+.front .say{left:16px;right:auto}
+.say svg{width:20px;height:20px}
+.ctl{max-width:620px;margin:18px auto 0;display:grid;grid-template-columns:auto minmax(0,1fr) minmax(0,1fr) auto;gap:10px}
+.btn{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:14px;min-height:52px;padding:0 16px;font:500 16px "Noto Sans Thai",sans-serif;cursor:pointer}
+.btn:hover{border-color:var(--soft)}
+.btn.no{border-color:var(--shu);color:var(--shu)}
+.btn.yes{background:var(--ok);border-color:var(--ok);color:#fff}
+.btn:active{transform:translateY(1px)}
+button:focus-visible,input:focus-visible{outline:3px solid #f2a33a;outline-offset:2px}
+.keys{text-align:center;font-size:13px;color:var(--soft);margin-top:12px}
+.empty{max-width:620px;margin:0 auto;background:var(--card);border:1px dashed var(--line);border-radius:22px;padding:40px 24px;text-align:center}
+.q{max-width:620px;margin:0 auto}
+.q .face{position:relative;height:auto;min-height:220px;backface-visibility:visible}
+.ans{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:14px}
+.ans button{text-align:left;min-height:60px;padding:10px 14px;font-size:17px}
+.ans button.r{background:var(--ok);border-color:var(--ok);color:#fff}
+.ans button.w{border-color:var(--shu);color:var(--shu);background:color-mix(in srgb,var(--shu) 10%,var(--card))}
+.score{display:flex;justify-content:space-between;align-items:center;margin-top:14px;font-size:15px;color:var(--soft);gap:10px;flex-wrap:wrap}
+.search{width:100%;max-width:420px;font:16px "Noto Sans Thai",sans-serif;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);min-height:46px}
+.scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;background:var(--card);border-radius:14px;overflow:hidden}
+th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:13px;color:var(--soft);font-weight:500}
+tbody tr{cursor:pointer}
+tbody tr:hover{background:color-mix(in srgb,var(--band) 7%,var(--card))}
+td.w{font-size:20px;font-weight:700}
+td.ok{color:var(--ok);font-weight:700;white-space:nowrap}
+[hidden]{display:none!important}
+@media(max-width:600px){.ctl{grid-template-columns:repeat(2,minmax(0,1fr))}.ctl .prev{order:3}.ctl .next{order:4}.ans{grid-template-columns:minmax(0,1fr)}table{font-size:14px}.stack thead{display:none}.stack tr{display:grid;padding:8px 0}.stack td{border:0;padding:2px 12px}.stack td.w{font-size:22px}.keys{display:none}}
+@media(prefers-reduced-motion:reduce){.card{transition:none}}
+</style>
+</head>
+<body>
+<header class="band">
+  <div class="top">
+    <h1>คำศัพท์ภาษาญี่ปุ่น N5<small>แตะการ์ดเพื่อดูคำแปล · ปัดซ้ายขวาเพื่อเปลี่ยนคำ</small></h1>
+    <div class="tabs" role="group" aria-label="โหมด">
+      <button id="t-card" aria-pressed="true">การ์ด</button>
+      <button id="t-quiz" aria-pressed="false">ควิซ</button>
+      <button id="t-list" aria-pressed="false">รายการคำ</button>
+    </div>
+  </div>
+  <div class="chips" id="chips" role="group" aria-label="หมวดหมู่"></div>
+</header>
+<main>
+  <div class="bar">
+    <div class="prog"><span id="pt">จำได้แล้ว 0/0</span><div class="track"><i id="pb"></i></div></div>
+    <div class="opts">
+      <button class="tog" id="o-dir" aria-pressed="false">ไทย → ญี่ปุ่น</button>
+      <button class="tog" id="o-read" aria-pressed="true">คำอ่าน</button>
+      <button class="tog" id="o-roma" aria-pressed="true">โรมาจิ</button>
+      <button class="tog" id="o-left" aria-pressed="false">เฉพาะคำที่ยังจำไม่ได้</button>
+      <button class="tog" id="o-shuf">สุ่มลำดับ</button>
+    </div>
+  </div>
+
+  <section id="v-card">
+    <div class="stage" id="stage">
+      <div class="card" id="card" tabindex="0" aria-live="polite">
+        <div class="face front"><span class="num" id="f-num"></span><span class="cat" id="f-cat"></span><div id="f-body"></div><button class="say" id="say1" aria-label="ฟังเสียง"></button><span class="hint">แตะเพื่อพลิก</span></div>
+        <div class="face back"><span class="num" id="b-num"></span><span class="cat" id="b-cat"></span><div id="b-body"></div><div class="stamp">覚えた</div><button class="say" id="say2" aria-label="ฟังเสียง"></button></div>
+      </div>
+    </div>
+    <div class="empty" id="empty" hidden><p><b>เก่งมาก! หมวดนี้จำได้ครบทุกคำแล้ว</b></p><p>ปิด “เฉพาะคำที่ยังจำไม่ได้” เพื่อทบทวนทั้งหมด หรือเลือกหมวดอื่น</p></div>
+    <div class="ctl" id="ctl">
+      <button class="btn prev" id="prev" aria-label="คำก่อนหน้า">←</button>
+      <button class="btn no" id="no">ยังจำไม่ได้</button>
+      <button class="btn yes" id="yes">จำได้แล้ว</button>
+      <button class="btn next" id="next" aria-label="คำถัดไป">→</button>
+    </div>
+    <p class="keys">คีย์ลัด: Space พลิก · ← → เปลี่ยนคำ · ↑ จำได้แล้ว · ↓ ยังจำไม่ได้ · S ฟังเสียง</p>
+  </section>
+
+  <section id="v-quiz" hidden>
+    <div class="q">
+      <div class="face"><span class="cat" id="q-cat"></span><div id="q-body"></div><button class="say" id="say3" aria-label="ฟังเสียง"></button></div>
+      <div class="ans" id="ans"></div>
+      <div class="score"><span id="q-score">ถูก 0 จาก 0 ข้อ</span><button class="btn" id="q-next">ข้อต่อไป →</button></div>
+    </div>
+  </section>
+
+  <section id="v-list" hidden>
+    <p><input class="search" id="search" type="search" placeholder="ค้นหา: ญี่ปุ่น ไทย หรือโรมาจิ"></p>
+    <div class="scroll"><table class="stack"><thead><tr><th>คำ</th><th>คำอ่าน</th><th>ความหมาย</th><th>หมวด</th><th></th></tr></thead><tbody id="tb"></tbody></table></div>
+  </section>
+</main>
+<script>
+{
+const CATS={n:"ตัวเลข/ลักษณนาม",t:"เวลา/วัน",d:"ตำแหน่ง/ทิศ",p:"สถานที่/การเดินทาง",h:"คน/ครอบครัว",f:"อาหาร/เครื่องดื่ม",o:"สิ่งของ",e:"ธรรมชาติ/สัตว์",b:"สุขภาพ",s:"เรียน/งาน/กิจกรรม",v:"คำกริยา",a:"คำคุณศัพท์",q:"คำถาม/คำชี้",x:"คำวิเศษณ์/สำนวน"};
+const RAW=`明日|あした|พรุ่งนี้|t
+雨|あめ|ฝน|e
+教室|きょうしつ|ห้องเรียน|p
+書きます|かきます|เขียน|v
+写真|しゃしん|รูปถ่าย|o
+中|なか|ข้างใน|d
+上|うえ|ข้างบน|d
+下|した|ข้างล่าง|d
+左|ひだり|ซ้าย|d
+右|みぎ|ขวา|d
+となり||ข้างๆ (ติดกัน)|d
+そば||ใกล้ๆ, ข้างๆ|d
+そと||ข้างนอก|d
+よこ||ด้านข้าง|d
+いす||เก้าอี้|o
+月曜日|げつようび|วันจันทร์|t
+火曜日|かようび|วันอังคาร|t
+水曜日|すいようび|วันพุธ|t
+木曜日|もくようび|วันพฤหัสบดี|t
+金曜日|きんようび|วันศุกร์|t
+土曜日|どようび|วันเสาร์|t
+日曜日|にちようび|วันอาทิตย์|t
+空|そら|ท้องฟ้า|e
+いえ||บ้าน|p
+うち||บ้าน (บ้านของเรา)|p
+海|うみ|ทะเล|e
+山|やま|ภูเขา|e
+森|もり|ป่า|e
+にわ||สวนในบ้าน|p
+せいと||นักเรียน (ประถม-มัธยม)|h
+学生|がくせい|นักเรียน, นักศึกษา|h
+大学生|だいがくせい|นักศึกษามหาวิทยาลัย|h
+大学|だいがく|มหาวิทยาลัย|p
+学校|がっこう|โรงเรียน|p
+一|いち|1 หนึ่ง|n
+二|に|2 สอง|n
+三|さん|3 สาม|n
+四|よん・し|4 สี่|n
+五|ご|5 ห้า|n
+六|ろく|6 หก|n
+七|なな・しち|7 เจ็ด|n
+八|はち|8 แปด|n
+九|きゅう・く|9 เก้า|n
+十|じゅう|10 สิบ|n
+百|ひゃく|100 ร้อย|n
+千|せん|1,000 พัน|n
+万|まん|10,000 หมื่น|n
+百万|ひゃくまん|1,000,000 ล้าน|n
+たくさん||มาก, เยอะ|x
+魚|さかな|ปลา|f
+豚|ぶた|หมู|e
+牛|うし|วัว|e
+とり||นก, ไก่|e
+牛肉|ぎゅうにく|เนื้อวัว|f
+豚肉|ぶたにく|เนื้อหมู|f
+とり肉|とりにく|เนื้อไก่|f
+猫|ねこ|แมว|e
+犬|いぬ|สุนัข|e
+パン||ขนมปัง|f
+います||มี, อยู่ (คน สัตว์)|v
+あります||มี, อยู่ (สิ่งของ)|v
+置きます|おきます|วาง|v
+半分|はんぶん|ครึ่งหนึ่ง|n
+友達|ともだち|เพื่อน|h
+母|はは|แม่ (ของตัวเอง)|h
+父|ちち|พ่อ (ของตัวเอง)|h
+弟|おとうと|น้องชาย|h
+兄|あに|พี่ชาย (ของตัวเอง)|h
+姉|あね|พี่สาว (ของตัวเอง)|h
+妹|いもうと|น้องสาว|h
+あげます||ให้ (เราให้คนอื่น)|v
+もらいます||ได้รับ|v
+くれます||ให้ (คนอื่นให้เรา)|v
+銀行|ぎんこう|ธนาคาร|p
+スーパー||ซูเปอร์มาร์เก็ต|p
+間|あいだ|ระหว่าง|d
+たまご||ไข่|f
+みち||ถนน, ทาง|p
+まち||เมือง|p
+とります||หยิบ, ถ่าย (รูป)|v
+今日|きょう|วันนี้|t
+昨日|きのう|เมื่อวาน|t
+おととい||เมื่อวานซืน|t
+あさって||มะรืนนี้|t
+元気|げんき|สบายดี, ร่าเริง|a
+ワイシャツ||เสื้อเชิ้ต|o
+国|くに|ประเทศ|p
+公園|こうえん|สวนสาธารณะ|p
+多い|おおい|มาก (จำนวน)|a
+川|かわ|แม่น้ำ|e
+どこ||ที่ไหน|q
+どれ||อันไหน|q
+どうして||ทำไม|q
+どの||～ไหน (+คำนาม)|q
+ここ||ที่นี่|q
+そこ||ที่นั่น|q
+あそこ||ที่โน่น|q
+これ||อันนี้|q
+それ||อันนั้น|q
+あれ||อันโน้น|q
+この||～นี้ (+คำนาม)|q
+その||～นั้น (+คำนาม)|q
+あの||～โน้น (+คำนาม)|q
+だれ||ใคร|q
+何の|なんの|～อะไร, เกี่ยวกับอะไร|q
+ざっし||นิตยสาร|o
+みます||ดู|v
+見せます|みせます|ให้ดู, แสดง|v
+カメラ||กล้องถ่ายรูป|o
+会社|かいしゃ|บริษัท|p
+しゃいん||พนักงานบริษัท|h
+休みます|やすみます|พัก, หยุด|v
+来月|らいげつ|เดือนหน้า|t
+来週|らいしゅう|สัปดาห์หน้า|t
+先月|せんげつ|เดือนที่แล้ว|t
+先週|せんしゅう|สัปดาห์ที่แล้ว|t
+今週|こんしゅう|สัปดาห์นี้|t
+今月|こんげつ|เดือนนี้|t
+今年|ことし|ปีนี้|t
+来年|らいねん|ปีหน้า|t
+去年|きょねん|ปีที่แล้ว|t
+結婚|けっこん|การแต่งงาน|s
+部屋|へや|ห้อง|p
+アパート||อพาร์ตเมนต์|p
+デパート||ห้างสรรพสินค้า|p
+〜本|いっぽん・にほん・さんぼん|ลักษณนามของยาวๆ (ขวด ปากกา)|n
+〜冊|いっさつ・にさつ・さんさつ|ลักษณนามหนังสือ สมุด (เล่ม)|n
+〜台|いちだい・にだい・さんだい|ลักษณนามรถ เครื่องจักร (คัน, เครื่อง)|n
+〜回|いっかい・にかい・さんかい|ครั้ง|n
+〜階|いっかい・にかい・さんがい|ชั้น (ของอาคาร)|n
+ナイフ||มีด|o
+りんご||แอปเปิล|f
+切ります|きります|ตัด|v
+閉めます|しめます|ปิด (ประตู หน้าต่าง)|v
+つけます||เปิด (ไฟ แอร์)|v
+忘れます|わすれます|ลืม|v
+時間|じかん|เวลา, ชั่วโมง|t
+とき||ตอนที่, เวลาที่|t
+わかります||เข้าใจ|v
+じしょ||พจนานุกรม|o
+ちず||แผนที่|o
+とけい||นาฬิกา|o
+さいふ||กระเป๋าสตางค์|o
+カバン||กระเป๋า|o
+えき||สถานีรถไฟ|p
+ちかい||ใกล้|a
+とおい||ไกล|a
+べんり||สะดวก|a
+じょうぶ||แข็งแรง, ทนทาน|a
+いっぱい||เต็ม, มากมาย|x
+一緒に|いっしょに|ด้วยกัน|x
+へた||ไม่เก่ง|a
+じょうず||เก่ง|a
+なつやすみ||ปิดเทอมฤดูร้อน|t
+ふゆやすみ||ปิดเทอมฤดูหนาว|t
+あき||ฤดูใบไม้ร่วง|t
+はる||ฤดูใบไม้ผลิ|t
+レストラン||ร้านอาหาร|p
+プール||สระว่ายน้ำ|p
+エレベーター||ลิฟต์|o
+ビル||ตึก, อาคาร|p
+ビール||เบียร์|f
+しります||รู้|v
+いります||ต้องการ, จำเป็น|v
+はいります||เข้า|v
+でます||ออก|v
+だします||ส่ง, ยื่น, เอาออก|v
+しつもん（します）||คำถาม (ถามคำถาม)|s
+もんだい||ปัญหา, โจทย์|s
+べんきょうします||เรียน, ทบทวน|v
+じゅぎょう||คาบเรียน|s
+れんしゅうします||ฝึกซ้อม|v
+おふろ||อ่างอาบน้ำ, การแช่น้ำ|o
+開けます|あけます|เปิด (ประตู หน้าต่าง)|v
+まど||หน้าต่าง|o
+ドア||ประตู|o
+エアコン||แอร์|o
+テーブル||โต๊ะ|o
+売ります|うります|ขาย|v
+持ちます|もちます|ถือ, มี|v
+待ちます|まちます|รอ|v
+覚えます|おぼえます|จำ|v
+コーヒー||กาแฟ|f
+さとう||น้ำตาล|f
+すこし||นิดหน่อย|x
+いれます||ใส่|v
+あまい||หวาน|a
+すっぱい||เปรี้ยว|a
+からい||เผ็ด|a
+しょっぱい||เค็ม|a
+わかい||อายุน้อย, หนุ่มสาว|a
+〜歳|いっさい・にさい・さんさい|อายุ ～ ปี|n
+つよい||แข็งแรง|a
+よわい||อ่อนแอ|a
+かぜ||ไข้หวัด / ลม|b
+熱が出ます|ねつがでます|มีไข้|b
+服|ふく|เสื้อผ้า|o
+いそぎます||รีบ|v
+とびます||บิน, กระโดด|v
+はしります||วิ่ง|v
+あるきます||เดิน|v
+ふきます||(ลม) พัด / เช็ด|v
+両親|りょうしん|พ่อแม่|h
+旅行|りょこう|การท่องเที่ยว|s
+せんたくします||ซักผ้า|v
+ぬぎます||ถอด (เสื้อ รองเท้า)|v
+わたします||ยื่นให้, ส่งให้|v
+あらいます||ล้าง|v
+きます||สวม (เสื้อ) 着ます / มา 来ます|v
+かります||ยืม|v
+かします||ให้ยืม|v
+ペン||ปากกา|o
+えんぴつ||ดินสอ|o
+ひこうき||เครื่องบิน|p
+くうこう||สนามบิน|p
+帰ります|かえります|กลับ (บ้าน)|v
+くつ||รองเท้า|o
+かいます||ซื้อ|v
+毎朝|まいあさ|ทุกเช้า|t
+昼|ひる|กลางวัน|t
+晩|ばん|ตอนเย็น, ค่ำ|t
+夜|よる|กลางคืน|t
+会います|あいます|พบ, เจอ|v
+本|ほん|หนังสือ|o
+ほんだな||ชั้นหนังสือ|o
+つくります||ทำ, สร้าง|v
+お店|おみせ|ร้าน|p
+店の人|みせのひと|พนักงานร้าน|h
+お客|おきゃく|ลูกค้า, แขก|h
+北|きた|ทิศเหนือ|d
+東|ひがし|ทิศตะวันออก|d
+西|にし|ทิศตะวันตก|d
+南|みなみ|ทิศใต้|d
+前|まえ|ข้างหน้า, ก่อน|d
+あと||หลังจาก, ทีหลัง|d
+スキー||สกี|s
+はじめて||ครั้งแรก|x
+どなた||ท่านใด (สุภาพของ だれ)|q
+どちら||ทางไหน, อันไหน (สุภาพ)|q
+いかが||เป็นอย่างไร (สุภาพของ どう)|q
+いくつ||กี่อัน, อายุเท่าไร|q
+いくら||ราคาเท่าไร|q
+ちょっと||นิดหน่อย|x
+もう||แล้ว, อีก|x
+よく||บ่อยๆ, ดี|x
+まだ||ยัง|x
+びょういん||โรงพยาบาล|p
+薬|くすり|ยา|b
+音楽|おんがく|ดนตรี|s
+ギターをひきます||เล่นกีตาร์|v
+飲み物|のみもの|เครื่องดื่ม|f
+食べ物|たべもの|อาหาร|f
+〜もの||สิ่งของ (ที่จับต้องได้)|x
+〜こと||เรื่อง, สิ่ง (นามธรรม)|x
+〜の||ของ / ใช้แทนคำนาม|x
+あまり||ไม่ค่อย (+ปฏิเสธ)|x
+また||อีก|x
+だんだん||ค่อยๆ, ทีละนิด|x
+新聞|しんぶん|หนังสือพิมพ์|o
+読みます|よみます|อ่าน|v
+好き|すき|ชอบ|a
+なっとう||นัตโตะ (ถั่วหมัก)|f
+ケーキ||เค้ก|f
+喫茶店|きっさてん|ร้านกาแฟ|p
+いちご||สตรอว์เบอร์รี|f
+バナナ||กล้วย|f
+欲しい|ほしい|อยากได้|a
+つぎ||ถัดไป|x
+まがります||เลี้ยว|v
+しんごう||สัญญาณไฟจราจร|p
+出かけます|でかけます|ออกไปข้างนอก|v
+おかし||ขนม|f
+ほんや||ร้านหนังสือ|p
+がいこく||ต่างประเทศ|p
+とても||มาก|x
+ジュース||น้ำผลไม้|f
+すいか||แตงโม|f
+色々な|いろいろな|หลากหลาย|a
+天気|てんき|อากาศ, สภาพอากาศ|e
+名前|なまえ|ชื่อ|h
+〜杯|いっぱい・にはい・さんばい|ลักษณนามแก้ว ถ้วย|n
+だから||เพราะฉะนั้น|x
+でも||แต่|x
+いつも||เสมอ, ทุกครั้ง|x
+もっと||มากกว่านี้|x
+教えます|おしえます|สอน, บอก|v
+しごと||งาน|s
+ごろ||ประมาณ (เวลา)|x
+くらい||ประมาณ (ปริมาณ)|x
+たんじょうび||วันเกิด|t
+つもり||ตั้งใจว่าจะ|x
+から〜まで||จาก ～ ถึง ～|x
+水|みず|น้ำ|f
+火|ひ|ไฟ|e
+土|つち|ดิน|e
+木|き|ต้นไม้|e
+お金|おかね|เงิน|o
+しゅうりします||ซ่อม|v
+こわれます||พัง, เสีย|v
+トイレ||ห้องน้ำ|p
+ながれます||ไหล|v
+地下|ちか|ใต้ดิน|d
+つかいます||ใช้|v
+男の人|おとこのひと|ผู้ชาย|h
+女の人|おんなのひと|ผู้หญิง|h
+食事（します）|しょくじ（します）|มื้ออาหาร (ทานอาหาร)|f
+どうですか||เป็นอย่างไรบ้าง|q
+おわります||จบ, เสร็จ|v
+いつ||เมื่อไร|q
+つごう||ความสะดวก (เรื่องเวลา)|x
+アルバイト||งานพาร์ตไทม์|s
+かいぎ||การประชุม|s
+午後|ごご|ช่วงบ่าย (p.m.)|t
+午前|ごぜん|ช่วงเช้า (a.m.)|t
+しりょう||เอกสาร|s
+コピー||ถ่ายเอกสาร|s
+よろしくお願いします|よろしくおねがいします|ฝากเนื้อฝากตัวด้วย, ฝากด้วยนะ|x
+かんじ||ตัวคันจิ|s
+かみ||กระดาษ / ผม|o
+書きかた|かきかた|วิธีเขียน|s
+読みかた|よみかた|วิธีอ่าน|s
+こえ||เสียง (ของคน สัตว์)|b
+およぎます||ว่ายน้ำ|v
+いみ||ความหมาย|s
+アプリ||แอป|o
+しぶや||ชิบุยะ (ย่านในโตเกียว)|p
+しんじゅく||ชินจูกุ (ย่านในโตเกียว)|p
+しゅくだい||การบ้าน|s
+あそびます||เล่น, ไปเที่ยว|v
+しゅうまつ||สุดสัปดาห์|t
+近くの|ちかくの|～ที่อยู่ใกล้ๆ|d
+散歩します|さんぽします|เดินเล่น|v
+うれしい||ดีใจ|a
+いしゃ||หมอ|h
+かんごし||พยาบาล|h
+いなか||ชนบท, บ้านเกิด|p
+ゆめ||ความฝัน|x
+しょうらい||อนาคต|t
+はたらきます||ทำงาน|v
+しゅみ||งานอดิเรก|s
+えいが||ภาพยนตร์|s
+えいがかん||โรงภาพยนตร์|p
+すいぞくかん||พิพิธภัณฑ์สัตว์น้ำ|p
+〜人|ひとり・ふたり・さんにん|ลักษณนามคน|n
+ききます||ฟัง, ถาม|v
+話します|はなします|พูด|v
+ときどき||บางครั้ง|x
+たのしい||สนุก|a
+おもいます||คิดว่า|v
+かんがえます||คิด, พิจารณา|v
+バス||รถบัส|p
+バスてい||ป้ายรถเมล์|p
+ちかてつ||รถไฟใต้ดิน|p
+のります||ขึ้น (รถ), นั่ง (ยานพาหนะ)|v
+スマホ||สมาร์ตโฟน|o
+ニュース||ข่าว|s
+毎日|まいにち|ทุกวัน|t
+どうやって||ทำอย่างไร|q
+でんち||ถ่าน, แบตเตอรี่|o
+なくなります||หมด, หายไป|v
+なくします||ทำหาย|v
+ゲーム||เกม|s
+ひま||ว่าง|a
+コンビニ||ร้านสะดวกซื้อ|p
+けいさつ||ตำรวจ|h
+はらいます||จ่าย|v
+さがします||หา, ค้นหา|v
+びっくりします||ตกใจ|v
+けっこんしき||งานแต่งงาน|s
+やくそくします||สัญญา, นัด|v
+パーティー||งานเลี้ยง|s
+インターネット||อินเทอร์เน็ต|o
+しんぱい||เป็นห่วง, กังวล|a
+ちがいます||ผิด, ต่างกัน|v
+わらいます||หัวเราะ|v
+しょうゆ||ซีอิ๊ว|f
+しお||เกลือ|f
+りょうり||อาหาร, การทำอาหาร|f
+ゆうびんきょく||ที่ทำการไปรษณีย์|p
+しんせつ||ใจดี|a
+かんたん||ง่าย|a
+メモ||โน้ต|o
+ピアノ||เปียโน|s
+こたえます||ตอบ|v
+おすし||ซูชิ|f
+おさけ||เหล้า, สาเก|f
+お肉|おにく|เนื้อสัตว์|f
+ハンバーグ||แฮมเบิร์กสเต๊ก|f
+有名|ゆうめい|มีชื่อเสียง|a
+アイスクリーム||ไอศกรีม|f
+果物|くだもの|ผลไม้|f
+ぎゅうにゅう||นมวัว|f
+お茶|おちゃ|ชา|f
+ワイン||ไวน์|f
+てんぷら||เทมปุระ|f
+もちかえり||ซื้อกลับบ้าน (take away)|f
+おさしみ||ซาชิมิ|f
+ダンス||การเต้น|s
+ギター||กีตาร์|s
+うた||เพลง|s
+〜時|いちじ・にじ・さんじ|～ นาฬิกา (บอกเวลา)|n
+うたいます||ร้องเพลง|v
+アメリカ||อเมริกา|p
+コンサート||คอนเสิร์ต|s
+おどります||เต้น|v
+つれていきます||พา (คน) ไป|v
+子ども|こども|เด็ก|h
+ひっこし||การย้ายบ้าน|s
+〜分|いっぷん・にふん・さんぷん|～ นาที|n
+ところ||สถานที่|p
+どうぶつ||สัตว์|e
+どうぶつえん||สวนสัตว์|p
+チケット||ตั๋ว|o
+ぜんぶで||ทั้งหมด (รวมกัน)|x
+おとな||ผู้ใหญ่|h
+パスポート||หนังสือเดินทาง|o
+きょうかしょ||หนังสือเรียน|o
+ばんごう||หมายเลข|n
+じどうはんばいき||ตู้ขายของอัตโนมัติ|o
+もちろん||แน่นอน|x
+お金をおろします|おかねをおろします|ถอนเงิน|v
+ほかに・ほかの||นอกจากนี้, ～อื่น|x
+だけ||เท่านั้น|x
+しか〜ません||มีแค่ ～ (+ปฏิเสธ)|x
+こんど||คราวหน้า, ครั้งนี้|t
+ボール||ลูกบอล|o
+トランプ||ไพ่|s
+やさい||ผัก|f
+きります||ตัด|v
+あたためます||อุ่น (อาหาร)|v
+てつだいます||ช่วย (ทำงาน)|v
+たすけます||ช่วยเหลือ (จากอันตราย)|v
+でんしレンジ||ไมโครเวฟ|o`;
+const W=RAW.split("\n").map((l,i)=>{const[w,r,th,c]=l.split("|");return{i,w,r,th,c}});
+
+/* kana → romaji */
+const K="あa いi うu えe おo かka きki くku けke こko がga ぎgi ぐgu げge ごgo さsa しshi すsu せse そso ざza じji ずzu ぜze ぞzo たta ちchi つtsu てte とto だda ぢji づzu でde どdo なna にni ぬnu ねne のno はha ひhi ふfu へhe ほho ばba びbi ぶbu べbe ぼbo ぱpa ぴpi ぷpu ぺpe ぽpo まma みmi むmu めme もmo やya ゆyu よyo らra りri るru れre ろro わwa をo んn ゔvu ぁa ぃi ぅu ぇe ぉo";
+const M={};K.split(" ").forEach(p=>{M[p[0]]=p.slice(1)});
+const SM={"ゃ":"a","ゅ":"u","ょ":"o","ぁ":"a","ぃ":"i","ぅ":"u","ぇ":"e","ぉ":"o"};
+const PUNCT={"〜":"~","・":" / ","（":" (","）":")","、":", "};
+function romaji(s){
+  s=s.replace(/[ァ-ヶ]/g,c=>String.fromCharCode(c.charCodeAt(0)-96));
+  let o="",dbl=false;
+  for(let k=0;k<s.length;k++){
+    const c=s[k],nx=s[k+1];
+    if(c==="っ"){dbl=true;continue}
+    if(c==="ー"){const v=o.match(/[aiueo](?=[^aiueo]*$)/);o+=v?v[0]:"";continue}
+    let r;
+    if(M[c]!==undefined&&SM[nx]&&!"ゃゅょぁぃぅぇぉ".includes(c)){
+      const b=M[c];
+      r=/^(sh|ch|j|f|ts)/.test(b)||"ぁぃぅぇぉ".includes(nx)?b.slice(0,-1)+SM[nx]:b.slice(0,-1)+"y"+SM[nx];k++;
+    }else if(M[c]!==undefined)r=M[c];
+    else r=PUNCT[c]??c;
+    if(dbl&&/^[a-z]/.test(r)){o+=r.startsWith("ch")?"t":r[0];}
+    dbl=false;o+=r;
+  }
+  return o;
+}
+W.forEach(x=>{x.ro=romaji(x.r||x.w);x.kana=!x.r});
+
+/* state */
+let known=new Set();
+try{known=new Set(JSON.parse(localStorage.getItem("n5known")||"[]"))}catch(e){}
+const save=()=>{try{localStorage.setItem("n5known",JSON.stringify([...known]))}catch(e){}};
+let cat="all",order=W.map(x=>x.i),pos=0,flipped=false,mode="card";
+const opt={dir:false,read:true,roma:true,left:false};
+const $=id=>document.getElementById(id);
+const esc=s=>s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const pool=()=>order.map(i=>W[i]).filter(x=>(cat==="all"||x.c===cat)&&(!opt.left||!known.has(x.w)));
+const inCat=()=>W.filter(x=>cat==="all"||x.c===cat);
+
+const SPK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg>';
+["say1","say2","say3"].forEach(id=>$(id).innerHTML=SPK);
+
+function speak(x){
+  try{
+    const u=new SpeechSynthesisUtterance((x.r||x.w).replace(/〜/g,"").replace(/・/g,"、"));
+    u.lang="ja-JP";u.rate=.85;
+    const v=speechSynthesis.getVoices().find(v=>v.lang&&v.lang.startsWith("ja"));if(v)u.voice=v;
+    speechSynthesis.cancel();speechSynthesis.speak(u);
+  }catch(e){}
+}
+
+function chips(){
+  const counts={};W.forEach(x=>counts[x.c]=(counts[x.c]||0)+1);
+  const list=[["all","ทั้งหมด",W.length],...Object.keys(CATS).map(k=>[k,CATS[k],counts[k]||0])];
+  $("chips").innerHTML=list.map(([k,n,c])=>`<button data-c="${k}" aria-pressed="${k===cat}">${n}<b>${c}</b></button>`).join("");
+}
+function progress(){
+  const s=inCat(),k=s.filter(x=>known.has(x.w)).length;
+  $("pt").textContent=`จำได้แล้ว ${k}/${s.length}`;
+  $("pb").style.width=(s.length?k/s.length*100:0)+"%";
+}
+function wordHTML(x,big){
+  const cls=x.w.length>6?"word jp long":"word jp";
+  return `<div class="read jp">${opt.read&&x.r?esc(x.r):""}</div><div class="${big?cls:"word jp"}">${esc(x.w)}</div><div class="roma">${opt.roma?esc(x.ro):""}</div>`;
+}
+function render(){
+  const p=pool();
+  progress();
+  const empty=!p.length;
+  $("stage").hidden=$("ctl").hidden=empty;$("empty").hidden=!empty;
+  if(empty)return;
+  if(pos>=p.length)pos=0;if(pos<0)pos=p.length-1;
+  const x=p[pos];
+  $("card").classList.toggle("flip",flipped);
+  $("card").classList.toggle("known",known.has(x.w));
+  const n=`${pos+1} / ${p.length}`;
+  $("f-num").textContent=$("b-num").textContent=n;
+  $("f-cat").textContent=$("b-cat").textContent=CATS[x.c];
+  const th=`<div class="th">${esc(x.th)}</div>`;
+  const jpBack=`<div class="read jp">${x.r?esc(x.r):""}</div><div class="word jp">${esc(x.w)}</div><div class="roma">${esc(x.ro)}</div>`;
+  if(!opt.dir){$("f-body").innerHTML=wordHTML(x,true);$("b-body").innerHTML=th+jpBack;$("say1").hidden=false}
+  else{$("f-body").innerHTML=th;$("b-body").innerHTML=jpBack;$("say1").hidden=true}
+}
+function go(d){flipped=false;pos+=d;render()}
+function mark(k){
+  const x=pool()[pos];if(!x)return;
+  k?known.add(x.w):known.delete(x.w);save();
+  if(opt.left&&k){flipped=false;render()}else go(1);
+}
+function shuffle(){
+  for(let i=order.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[order[i],order[j]]=[order[j],order[i]]}
+  pos=0;flipped=false;render();if(mode==="quiz")quiz();
+}
+
+/* quiz */
+let qx=null,qs={ok:0,n:0},answered=false;
+function quiz(){
+  const p=pool().length?pool():inCat();
+  qx=p[Math.floor(Math.random()*p.length)];answered=false;
+  let src=inCat().filter(x=>x.th!==qx.th);if(src.length<3)src=W.filter(x=>x.th!==qx.th);
+  const opts=[qx];
+  while(opts.length<4){const y=src[Math.floor(Math.random()*src.length)];if(!opts.some(o=>o.th===y.th))opts.push(y)}
+  opts.sort(()=>Math.random()-.5);
+  $("q-cat").textContent=CATS[qx.c];
+  $("q-body").innerHTML=opt.dir?`<div class="th">${esc(qx.th)}</div>`:wordHTML(qx,true);
+  $("say3").hidden=opt.dir;
+  $("ans").innerHTML=opts.map((o,k)=>`<button class="btn" data-k="${o.i}"><span class="${opt.dir?"jp":""}">${k+1}. ${esc(opt.dir?o.w:o.th)}</span></button>`).join("");
+}
+function answer(b){
+  if(answered||!b)return;answered=true;qs.n++;
+  const right=+b.dataset.k===qx.i;
+  if(right){qs.ok++;known.add(qx.w);save();progress()}
+  [...$("ans").children].forEach(el=>{if(+el.dataset.k===qx.i)el.classList.add("r");else if(el===b)el.classList.add("w")});
+  if(opt.dir)$("q-body").innerHTML+=`<div class="read jp" style="margin-top:10px">${esc(qx.w)} ${qx.r?"("+esc(qx.r)+")":""}</div>`;
+  else $("q-body").querySelector(".roma").textContent=qx.ro+" · "+qx.th;
+  $("q-score").textContent=`ถูก ${qs.ok} จาก ${qs.n} ข้อ`;
+}
+
+/* list */
+function list(){
+  const q=$("search").value.trim().toLowerCase();
+  const rows=inCat().filter(x=>!q||(x.w+x.r+x.th+x.ro).toLowerCase().includes(q));
+  $("tb").innerHTML=rows.length?rows.map(x=>`<tr data-i="${x.i}"><td class="w jp">${esc(x.w)}</td><td class="jp">${esc(x.r||"")}<br><small style="color:var(--soft)">${esc(x.ro)}</small></td><td>${esc(x.th)}</td><td>${CATS[x.c]}</td><td class="ok">${known.has(x.w)?"จำได้แล้ว":""}</td></tr>`).join(""):`<tr><td colspan="5">ไม่พบคำที่ค้นหา</td></tr>`;
+}
+
+function setMode(m){
+  mode=m;
+  ["card","quiz","list"].forEach(k=>{$("v-"+k).hidden=k!==m;$("t-"+k).setAttribute("aria-pressed",k===m)});
+  if(m==="card")render();if(m==="quiz")quiz();if(m==="list")list();
+}
+function refresh(){progress();if(mode==="card")render();if(mode==="quiz")quiz();if(mode==="list")list()}
+
+/* events */
+$("t-card").onclick=()=>setMode("card");$("t-quiz").onclick=()=>setMode("quiz");$("t-list").onclick=()=>setMode("list");
+$("chips").onclick=e=>{const b=e.target.closest("button");if(!b)return;cat=b.dataset.c;pos=0;flipped=false;chips();refresh()};
+["dir","read","roma","left"].forEach(k=>{$("o-"+k).onclick=e=>{opt[k]=!opt[k];e.currentTarget.setAttribute("aria-pressed",opt[k]);if(k==="left")pos=0;flipped=false;refresh()}});
+$("o-shuf").onclick=shuffle;
+$("card").onclick=e=>{if(e.target.closest(".say"))return;flipped=!flipped;$("card").classList.toggle("flip",flipped)};
+$("say1").onclick=$("say2").onclick=()=>{const x=pool()[pos];if(x)speak(x)};
+$("say3").onclick=()=>qx&&speak(qx);
+$("prev").onclick=()=>go(-1);$("next").onclick=()=>go(1);
+$("yes").onclick=()=>mark(true);$("no").onclick=()=>mark(false);
+$("ans").onclick=e=>answer(e.target.closest("button"));
+$("q-next").onclick=quiz;
+$("search").oninput=list;
+$("tb").onclick=e=>{const r=e.target.closest("tr[data-i]");if(!r)return;opt.left=false;$("o-left").setAttribute("aria-pressed",false);const p=pool();pos=p.findIndex(x=>x.i===+r.dataset.i);flipped=false;setMode("card")};
+document.addEventListener("keydown",e=>{
+  if(e.target.tagName==="INPUT")return;
+  if(mode==="card"){
+    if(e.key===" "){e.preventDefault();flipped=!flipped;$("card").classList.toggle("flip",flipped)}
+    else if(e.key==="ArrowRight")go(1);else if(e.key==="ArrowLeft")go(-1);
+    else if(e.key==="ArrowUp"){e.preventDefault();mark(true)}else if(e.key==="ArrowDown"){e.preventDefault();mark(false)}
+    else if(e.key==="s"||e.key==="S"){const x=pool()[pos];if(x)speak(x)}
+  }else if(mode==="quiz"){
+    if(/^[1-4]$/.test(e.key))answer($("ans").children[+e.key-1]);
+    else if(e.key==="Enter"||e.key==="ArrowRight")quiz();
+  }
+});
+let sx=null,sy=null;
+$("card").addEventListener("touchstart",e=>{sx=e.touches[0].clientX;sy=e.touches[0].clientY},{passive:true});
+$("card").addEventListener("touchend",e=>{if(sx===null)return;const dx=e.changedTouches[0].clientX-sx,dy=e.changedTouches[0].clientY-sy;if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)*1.5){e.preventDefault();go(dx<0?1:-1)}sx=null},{passive:false});
+try{speechSynthesis.getVoices()}catch(e){}
+
+chips();render();
+}
+</script>
+</body>
+</html>
