@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>แผนที่แกรมม่า N5</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&family=Noto+Sans+Thai:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* VOICE everyday study tool, calm and clear
+   IDEA a hand-drawn study mind map on dotted notebook paper
+   PICTURE the map itself: a hub, ten icon branches, each opening into grammar pills
+   COLOUR indigo band (same as the N5 cards), white paper, one hue per branch, vermilion accent
+   TYPE Zen Maru Gothic for Japanese + Noto Sans Thai
+   LAYOUT laptop: radial map fills the screen, detail sheet slides in from the right; phone: hub on top, branches in a grid, bottom sheet */
+:root{color-scheme:light dark;--bg:light-dark(#f4f5f8,#0e1424);--band:light-dark(#1f3a6b,#16264a);--paper:light-dark(#ffffff,#141c33);--card:light-dark(#ffffff,#1c2742);--ink:light-dark(#141a2b,#eef1f8);--soft:light-dark(#5b6479,#a8b1c8);--line:light-dark(#d9dde6,#2e3b5c);--dot:light-dark(#dfe3ec,#26304c);--shu:#d7372b;--ok:light-dark(#1f8a4c,#4cc283)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.6 "Noto Sans Thai","Zen Maru Gothic",system-ui,sans-serif;overflow-x:clip}
+.jp{font-family:"Zen Maru Gothic","Hiragino Maru Gothic ProN","Noto Sans JP",sans-serif}
+.band{background:var(--band);color:#fff;padding:18px max(5vw,16px) 16px}
+.top{max-width:1200px;margin:0 auto;display:flex;flex-wrap:wrap;gap:10px 24px;align-items:end;justify-content:space-between}
+.home{display:block;color:#fff;opacity:.85;font-size:14px;text-decoration:none;margin-bottom:4px}
+.home:hover{opacity:1;text-decoration:underline}
+h1{margin:0;font:700 clamp(28px,4vw,40px)/1.1 "Zen Maru Gothic","Noto Sans Thai",sans-serif}
+h1 small{display:block;font:500 15px/1.4 "Noto Sans Thai",sans-serif;opacity:.8;margin-top:6px}
+.crumb{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:15px}
+.crumb button{border:1px solid #ffffff55;background:#ffffff1a;color:#fff;border-radius:999px;padding:8px 14px;font:500 15px "Noto Sans Thai",sans-serif;cursor:pointer;min-height:40px}
+.crumb span{opacity:.9}
+main{max-width:1200px;margin:0 auto;padding:18px max(3vw,12px) 40px}
+.map{position:relative;background:var(--paper);background-image:radial-gradient(var(--dot) 1.2px,transparent 1.2px);background-size:22px 22px;border:1px solid var(--line);border-radius:24px;overflow:hidden;min-height:420px;transition:height .3s}
+.map svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.map path{fill:none;stroke-width:2.5;stroke-linecap:round;opacity:.55}
+.node{position:absolute;left:0;top:0;transform:translate(-50%,-50%);border:0;background:none;padding:0;cursor:pointer;color:var(--ink);display:flex;flex-direction:column;align-items:center;gap:6px;font:inherit;animation:pop .35s ease both}
+.node .ic{width:74px;height:74px;border-radius:50%;display:grid;place-items:center;background:var(--c);color:#fff;box-shadow:0 3px 0 color-mix(in srgb,var(--c) 60%,#000),0 10px 22px -12px color-mix(in srgb,var(--c) 80%,#000);transition:transform .15s}
+.node .ic svg{width:34px;height:34px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.node:hover .ic{transform:translateY(-2px)}
+.node .lb{font-weight:700;font-size:15px;line-height:1.25;text-align:center;max-width:8.5em;background:var(--paper);padding:0 4px;border-radius:6px}
+.node .lb small{display:block;font-weight:500;font-size:13px;color:var(--soft)}
+.hub .ic{width:112px;height:112px;background:var(--band);box-shadow:0 4px 0 #0f1c3a,0 14px 30px -14px #0f1c3a}
+.hub .ic svg{width:40px;height:40px}
+.hub .ic b{display:block;font:900 20px/1 "Zen Maru Gothic",sans-serif;margin-top:4px}
+.hub .ic div{display:grid;place-items:center}
+.pill{position:absolute;left:0;top:0;transform:translate(-50%,-50%);border:2px solid var(--c);background:var(--card);color:var(--ink);border-radius:16px;padding:6px 14px;cursor:pointer;text-align:center;min-height:48px;font:inherit;animation:pop .35s ease both;box-shadow:0 2px 0 color-mix(in srgb,var(--c) 45%,transparent)}
+.pill b{display:block;font:700 17px/1.3 "Zen Maru Gothic",sans-serif;white-space:nowrap}
+.pill small{display:block;font-size:13px;color:var(--soft);white-space:nowrap;line-height:1.3}
+.pill:hover{background:color-mix(in srgb,var(--c) 10%,var(--card))}
+.pill.seen::after{content:"";position:absolute;right:-6px;top:-6px;width:16px;height:16px;border-radius:50%;background:var(--ok);border:2px solid var(--card)}
+button:focus-visible,a:focus-visible{outline:3px solid #f2a33a;outline-offset:3px}
+.hint{margin:12px 4px 0;font-size:14px;color:var(--soft)}
+.shade{position:fixed;inset:0;background:#0b1020;opacity:.35;z-index:9}
+.sheet{position:fixed;z-index:10;top:0;right:0;bottom:0;width:min(460px,100vw);background:var(--card);border-left:1px solid var(--line);box-shadow:-20px 0 40px -24px #0006;overflow-y:auto;padding:22px 24px 30px;animation:slide .25s ease both}
+.sheet .x{position:sticky;top:0;float:right;width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:var(--card);color:var(--ink);font-size:22px;cursor:pointer}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:14px;font-weight:500;color:var(--c);border:1px solid var(--c);border-radius:999px;padding:3px 12px}
+.sheet h2{font:700 clamp(30px,6vw,40px)/1.15 "Zen Maru Gothic",sans-serif;margin:14px 0 2px}
+.sheet .s{font-size:19px;font-weight:700;margin:0 0 14px}
+.form{background:color-mix(in srgb,var(--c) 10%,var(--card));border-left:4px solid var(--c);border-radius:8px;padding:10px 14px;font:700 18px/1.5 "Zen Maru Gothic",sans-serif;margin:0 0 14px}
+.sheet h3{font-size:15px;color:var(--soft);font-weight:500;margin:18px 0 8px}
+.ex{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.ex li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;align-items:center;border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.ex .j{font:500 18px/1.5 "Zen Maru Gothic",sans-serif}
+.ex .t{grid-column:1;font-size:15px;color:var(--soft)}
+.ex button{grid-row:1/3;grid-column:2;width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;display:grid;place-items:center}
+.ex button svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.note{margin-top:14px;background:color-mix(in srgb,var(--shu) 9%,var(--card));border:1px solid color-mix(in srgb,var(--shu) 35%,transparent);border-radius:12px;padding:10px 14px;font-size:15px}
+.note b{color:var(--shu)}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:15px;margin-top:4px}
+th,td{border:1px solid var(--line);padding:7px 9px;text-align:left;vertical-align:top}
+th{background:color-mix(in srgb,var(--c) 10%,var(--card));font-weight:700}
+td.jp,td .jp{font-size:16px}
+.nav{display:flex;gap:10px;margin-top:22px}
+.nav button{flex:1;min-height:48px;border-radius:14px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:500 15px "Noto Sans Thai",sans-serif;cursor:pointer}
+.nav button:disabled{opacity:.4;cursor:default}
+[hidden]{display:none!important}
+@keyframes pop{from{opacity:0;transform:translate(-50%,-50%) scale(.6)}}
+@keyframes slide{from{transform:translateX(30px);opacity:0}}
+@media(max-width:640px){.ov .node .ic{width:50px;height:50px}.ov .node .ic svg{width:24px;height:24px}.ov .node .lb{font-size:13px;max-width:6.6em}.ov .node .lb small{display:none}.ov .hub .ic{width:86px;height:86px}.ov .hub .ic svg{width:30px;height:30px}.ov .hub .ic b{font-size:17px}}
+@media(max-width:600px){.sheet{top:auto;left:0;width:100%;max-height:82vh;border-left:0;border-top:1px solid var(--line);border-radius:22px 22px 0 0;animation-name:up}.node .ic{width:62px;height:62px}.node .ic svg{width:28px;height:28px}.hub .ic{width:96px;height:96px}.node .lb{font-size:14px}}
+@keyframes up{from{transform:translateY(40px);opacity:0}}
+@media(prefers-reduced-motion:reduce){.node,.pill,.sheet{animation:none}.map{transition:none}}
+</style>
+</head>
+<body>
+<header class="band">
+  <div class="top">
+    <h1><a class="home" href="index.html">← หน้าหลัก</a>แผนที่แกรมม่า N5<small>กดไอคอนเพื่อแตกหัวข้อ แล้วกดแกรมม่าแต่ละตัวเพื่อดูคำอธิบาย</small></h1>
+    <nav class="crumb" id="crumb" aria-label="ตำแหน่ง"></nav>
+  </div>
+</header>
+<main>
+  <div class="map" id="map"><svg id="lines" aria-hidden="true"></svg><div id="nodes"></div></div>
+  <p class="hint" id="hint"></p>
+</main>
+<div class="shade" id="shade" hidden></div>
+<aside class="sheet" id="sheet" hidden aria-live="polite"></aside>
+<script>
+{
+const IC={
+book:'<path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 19V5M8 7h7M8 11h5"/>',
+bubble:'<path d="M4 5h16v11H10l-6 4z"/><path d="M8 9h8M8 12h5"/>',
+link:'<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
+box:'<path d="M3 7l9-4 9 4-9 4z"/><path d="M3 7v10l9 4 9-4V7M12 11v10"/>',
+target:'<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M1 12h4M19 12h4"/>',
+star:'<path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.5l-5.3 2.9 1.2-6-4.5-4.1 6-.7z"/>',
+gear:'<circle cx="12" cy="12" r="3.2"/><path d="M12 2v3.5M12 18.5V22M4.9 4.9l2.5 2.5M16.6 16.6l2.5 2.5M2 12h3.5M18.5 12H22M4.9 19.1l2.5-2.5M16.6 7.4l2.5-2.5"/>',
+puzzle:'<path d="M5 8h3.5a2.5 2.5 0 1 1 5 0H17v3.5a2.5 2.5 0 1 1 0 5V20H5z"/>',
+heart:'<path d="M12 20s-7.5-4.6-7.5-10.2A4.2 4.2 0 0 1 12 7.2a4.2 4.2 0 0 1 7.5 2.6C19.5 15.4 12 20 12 20z"/>',
+gift:'<rect x="3" y="9" width="18" height="12" rx="1.5"/><path d="M3 13.5h18M12 9v12M12 9C10 5 6 4.5 6 7s4 2 6 2zM12 9c2-4 6-4.5 6-2s-4 2-6 2z"/>',
+fork:'<path d="M6 3v6a6 6 0 0 0 6 6h7"/><path d="M6 21v-7"/><path d="M16 12l3 3-3 3"/><circle cx="6" cy="3" r=".5"/>',
+ruler:'<rect x="2.5" y="8" width="19" height="8" rx="1.5"/><path d="M6.5 8v3M10.5 8v4.5M14.5 8v3M18.5 8v4.5"/>',
+spark:'<path d="M12 2.5l1.8 6.2 6.2 1.8-6.2 1.8L12 18.5l-1.8-6.2L4 10.5l6.2-1.8z"/><path d="M19 17l.8 2.2L22 20l-2.2.8L19 23l-.8-2.2L16 20l2.2-.8z"/>'
+};
+const SPK='<svg viewBox="0 0 24 24"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg>';
+const T=(head,rows)=>`<div class="scroll"><table><thead><tr>${head.map(h=>`<th>${h}</th>`).join("")}</tr></thead><tbody>${rows.map(r=>`<tr>${r.map(c=>`<td class="jp">${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+
+/* grammar content */
+const G=[
+{id:"basic",t:"ประโยคพื้นฐาน",j:"です・だ",ic:"bubble",c:"#2f6fd6",items:[
+ {k:"AはBです",s:"A คือ B",f:"N₁ は N₂ です",d:"ประโยคพื้นฐานที่สุด ใช้บอกว่า A เป็นอะไร",ex:[["わたしはタイ人です。","ฉันเป็นคนไทย"],["これは日本語の本です。","นี่คือหนังสือภาษาญี่ปุ่น"]]},
+ {k:"じゃありません",s:"ไม่ใช่",f:"N じゃありません／ではありません",d:"รูปปฏิเสธของ です",ex:[["わたしは先生じゃありません。","ฉันไม่ใช่ครู"]],n:"ではありません สุภาพกว่าเล็กน้อย รูปกันเองคือ じゃない"},
+ {k:"でした",s:"อดีต",f:"N でした／N じゃありませんでした",d:"บอกสิ่งที่เป็นในอดีต และรูปปฏิเสธของอดีต",ex:[["きのうは休みでした。","เมื่อวานเป็นวันหยุด"],["きのうは雨じゃありませんでした。","เมื่อวานไม่ใช่วันที่ฝนตก"]]},
+ {k:"〜ですか",s:"ประโยคคำถาม",f:"ประโยค ＋ か",d:"เติม か ท้ายประโยคก็เป็นคำถามได้ทันที ตอบด้วย はい／いいえ",ex:[["学生ですか。","เป็นนักเรียนหรือเปล่า"],["はい、そうです。／いいえ、ちがいます。","ใช่ครับ / ไม่ใช่ครับ"]]},
+ {k:"も",s:"ก็...เหมือนกัน",f:"N も 〜",d:"ใช้แทน は เมื่อเรื่องนั้นเหมือนกับที่พูดไปแล้ว",ex:[["わたしも学生です。","ฉันก็เป็นนักเรียนเหมือนกัน"]]},
+ {k:"AのB",s:"B ของ A",f:"N₁ の N₂",d:"เชื่อมคำนามสองคำ บอกความเป็นเจ้าของ หรือบอกว่าเป็น B ประเภทไหน",ex:[["わたしのかばん","กระเป๋าของฉัน"],["日本語の先生","ครูสอนภาษาญี่ปุ่น"]]},
+ {k:"だ",s:"รูปกันเองของ です",f:"N だ／N じゃない／N だった",d:"ใช้คุยกับเพื่อนหรือคนสนิท",ex:[["今日は休みだ。","วันนี้วันหยุด"],["きのうは雨だった。","เมื่อวานฝนตก"]]}
+]},
+{id:"part",t:"คำช่วย",j:"助詞",ic:"link",c:"#d7372b",items:[
+ {k:"は",s:"หัวเรื่อง",f:"N は 〜",d:"บอกว่ากำลังพูดถึงเรื่องอะไร",ex:[["わたしは学生です。","ฉันเป็นนักเรียน"],["今日は暑いです。","วันนี้ร้อน"]],n:"เขียน は แต่อ่านว่า <b>わ</b>"},
+ {k:"が",s:"ประธาน",f:"N が ＋ 好き／上手／ある／いる／わかる",d:"ใช้กับคำบอกความชอบ ความสามารถ การมีอยู่ และใช้หลังคำถาม",ex:[["犬が好きです。","ชอบสุนัข"],["日本語がわかります。","เข้าใจภาษาญี่ปุ่น"],["だれが来ましたか。","ใครมา"]],n:"หลังคำถาม だれ・何・どこ ใช้ <b>が</b> ห้ามใช้ は"},
+ {k:"を",s:"กรรม",f:"N を V",d:"บอกสิ่งที่ถูกกระทำ และสถานที่ที่เคลื่อนที่ผ่าน",ex:[["パンを食べます。","กินขนมปัง"],["公園を散歩します。","เดินเล่นในสวนสาธารณะ"]],n:"เขียน を อ่านว่า <b>お</b>"},
+ {k:"に",s:"เวลา จุดหมาย ที่อยู่ ผู้รับ",f:"เวลา に／สถานที่ に 行きます／N に あります／คน に あげます",d:"คำช่วยที่ใช้หลายแบบที่สุด",ex:[["7時に起きます。","ตื่นตอน 7 โมง"],["学校に行きます。","ไปโรงเรียน"],["机の上に本があります。","มีหนังสืออยู่บนโต๊ะ"],["友達にプレゼントをあげます。","ให้ของขวัญเพื่อน"]],n:"เวลาที่ไม่มีตัวเลข เช่น 今日・明日・毎日 <b>ไม่ต้องใส่ に</b>"},
+ {k:"へ",s:"ทิศทาง",f:"สถานที่ へ 行きます／来ます／帰ります",d:"บอกทิศทางที่ไป ใช้แทน に ได้",ex:[["日本へ行きます。","ไปญี่ปุ่น"]],n:"เขียน へ อ่านว่า <b>え</b>"},
+ {k:"で",s:"สถานที่ทำกิจกรรม เครื่องมือ",f:"สถานที่ で V／เครื่องมือ で V",d:"บอกว่าทำกิจกรรมที่ไหน หรือใช้อะไรทำ",ex:[["図書館で勉強します。","อ่านหนังสือที่ห้องสมุด"],["バスで行きます。","ไปด้วยรถบัส"],["はしで食べます。","กินด้วยตะเกียบ"]],n:"あります／います ใช้ <b>に</b> ไม่ใช่ で เช่น 部屋にいます vs 部屋で勉強します"},
+ {k:"と",s:"กับ, และ (ครบ)",f:"คน と V／N₁ と N₂",d:"ทำกับใคร หรือเชื่อมคำนามแบบพูดครบทุกอย่าง",ex:[["友達と映画を見ます。","ดูหนังกับเพื่อน"],["パンとたまごを買いました。","ซื้อขนมปังกับไข่ (แค่สองอย่างนี้)"]]},
+ {k:"や〜など",s:"และ...เป็นต้น",f:"N₁ や N₂ など",d:"ยกตัวอย่างแค่บางอย่าง ยังมีอย่างอื่นอีก",ex:[["りんごやバナナなどを買いました。","ซื้อแอปเปิล กล้วย และอื่นๆ"]],n:"<b>と</b> = พูดครบทุกอย่าง / <b>や〜など</b> = ยกตัวอย่างบางส่วน"},
+ {k:"から・まで",s:"จาก ถึง",f:"N から N まで",d:"บอกจุดเริ่มต้นและจุดสิ้นสุด ใช้ได้ทั้งเวลาและสถานที่",ex:[["9時から5時まで働きます。","ทำงานตั้งแต่ 9 โมงถึง 5 โมง"],["駅から家まで歩きます。","เดินจากสถานีถึงบ้าน"]]},
+ {k:"の",s:"ของ, ใช้แทนคำนาม",f:"N の (N)",d:"ใช้แทนคำนามที่รู้กันอยู่แล้ว ไม่ต้องพูดซ้ำ",ex:[["これはわたしのです。","อันนี้ของฉัน"],["赤いのをください。","ขออันสีแดง"]]},
+ {k:"か",s:"คำถาม, หรือ",f:"N₁ か N₂",d:"ท้ายประโยคเป็นคำถาม ระหว่างคำนามแปลว่า หรือ",ex:[["コーヒーか紅茶を飲みます。","ดื่มกาแฟหรือชา"]]},
+ {k:"も＋ปฏิเสธ",s:"ไม่...เลย",f:"คำถาม ＋ も ＋ ปฏิเสธ",d:"ใช้กับ 何・だれ・どこ แล้วตามด้วยรูปปฏิเสธ",ex:[["何も食べませんでした。","ไม่ได้กินอะไรเลย"],["だれもいません。","ไม่มีใครเลย"],["どこへも行きません。","ไม่ไปไหนเลย"]]},
+ {k:"ね・よ",s:"ใช่ไหม / นะ",f:"ประโยค ＋ ね／よ",d:"ね ชวนให้อีกฝ่ายเห็นด้วย ส่วน よ บอกข้อมูลที่อีกฝ่ายยังไม่รู้",ex:[["いい天気ですね。","อากาศดีนะ"],["このケーキ、おいしいですよ。","เค้กนี้อร่อยนะ (ลองดูสิ)"]]}
+]},
+{id:"nom",t:"の・こと・もの",j:"Vる／Vた＋",ic:"box",c:"#8a5cd0",items:[
+ {k:"Vるのが好き",s:"ชอบ/เก่งการ...",f:"Vる ＋ の ＋ が好きです／上手です",d:"เปลี่ยนกริยาให้เป็นคำนาม เพื่อบอกว่าชอบหรือเก่งการทำสิ่งนั้น",ex:[["本を読むのが好きです。","ชอบอ่านหนังสือ"],["妹は歌うのが上手です。","น้องสาวร้องเพลงเก่ง"]]},
+ {k:"Vるのは〜",s:"การ...นั้น...",f:"Vる ＋ の ＋ は 〜です",d:"ทำให้การกระทำเป็นหัวเรื่อง แล้วบอกว่าเป็นอย่างไร",ex:[["日本語を話すのは難しいです。","การพูดภาษาญี่ปุ่นยาก"]]},
+ {k:"Vたことがある",s:"เคย...",f:"Vた ＋ ことがあります",d:"บอกประสบการณ์ที่เคยทำ",ex:[["富士山に登ったことがあります。","เคยปีนภูเขาฟูจิ"],["すしを食べたことがありません。","ไม่เคยกินซูชิ"]],n:"ต้องใช้ <b>こと</b> เท่านั้น ❌ 登ったのがあります"},
+ {k:"Vることができる",s:"...ได้",f:"Vる ＋ ことができます",d:"บอกความสามารถ หรือความเป็นไปได้",ex:[["漢字を書くことができます。","เขียนคันจิได้"]]},
+ {k:"趣味は〜ことです",s:"งานอดิเรกคือ...",f:"趣味は Vる ＋ ことです",d:"บอกงานอดิเรก ใช้ こと",ex:[["わたしの趣味は写真をとることです。","งานอดิเรกของฉันคือถ่ายรูป"]]},
+ {k:"Vる／Vたもの",s:"สิ่งที่...",f:"Vる／Vた ＋ もの",d:"もの คือ สิ่งของที่จับต้องได้",ex:[["何か飲むものがありますか。","มีอะไรให้ดื่มไหม"],["きのう買ったものを見せてください。","ขอดูของที่ซื้อเมื่อวานหน่อย"]],n:"<b>もの</b> = สิ่งของ / <b>こと</b> = เรื่อง การกระทำ / <b>の</b> ใช้แทน こと ได้ในหลายประโยค แต่ไม่ได้ทุกประโยค"}
+]},
+{id:"ko",t:"คำชี้",j:"こそあど",ic:"target",c:"#1f8f8a",items:[
+ {k:"こ・そ・あ・ど",s:"หลักการ",f:"こ ใกล้ผู้พูด・そ ใกล้ผู้ฟัง・あ ไกลทั้งคู่・ど คำถาม",d:"คำชี้ทุกชุดใช้หลักเดียวกัน",tb:T(["","こ","そ","あ","ど"],[["สิ่งของ","これ","それ","あれ","どれ"],["＋คำนาม","この","その","あの","どの"],["สถานที่","ここ","そこ","あそこ","どこ"],["ทิศ (สุภาพ)","こちら","そちら","あちら","どちら"]]),ex:[["それは何ですか。","นั่นคืออะไร"]]},
+ {k:"これ・それ・あれ",s:"อันนี้ อันนั้น อันโน้น",f:"これ／それ／あれ／どれ は〜",d:"ใช้แทนสิ่งของ ใช้เดี่ยวๆ ได้",ex:[["これはいくらですか。","อันนี้ราคาเท่าไร"],["どれがあなたのかさですか。","ร่มของคุณคืออันไหน"]]},
+ {k:"この・その・あの",s:"...นี้ ...นั้น ...โน้น",f:"この／その／あの／どの ＋ N",d:"ต้องมีคำนามตามหลังเสมอ",ex:[["このかばんは高いです。","กระเป๋าใบนี้แพง"]],n:"❌ このは高いです → ✓ これは高いです"},
+ {k:"ここ・そこ・あそこ",s:"ที่นี่ ที่นั่น ที่โน่น",f:"ここ／そこ／あそこ／どこ",d:"ใช้บอกสถานที่",ex:[["トイレはどこですか。","ห้องน้ำอยู่ที่ไหน"],["あそこです。","อยู่ที่โน่น"]]},
+ {k:"こちら・どちら",s:"ทาง, แบบสุภาพ",f:"こちら／そちら／あちら／どちら",d:"บอกทิศทาง ใช้แทน ここ แบบสุภาพ และ どちら ใช้ถามให้เลือกระหว่างสองอย่าง",ex:[["お国はどちらですか。","มาจากประเทศอะไร (สุภาพ)"],["コーヒーと紅茶とどちらがいいですか。","กาแฟกับชา เอาอะไรดี"]]}
+]},
+{id:"adj",t:"คำคุณศัพท์",j:"い／な",ic:"star",c:"#d98200",items:[
+ {k:"い形容詞",s:"คุณศัพท์ い",f:"高い・楽しい・おいしい",d:"ผันโดยเปลี่ยน い ตัวท้าย",tb:T(["รูป","ผัน","ตัวอย่าง"],[["ปัจจุบัน","〜いです","高いです"],["ปฏิเสธ","〜くないです","高くないです"],["อดีต","〜かったです","高かったです"],["อดีตปฏิเสธ","〜くなかったです","高くなかったです"]]),ex:[["この本は高くないです。","หนังสือเล่มนี้ไม่แพง"],["旅行は楽しかったです。","การเที่ยวสนุก"]]},
+ {k:"な形容詞",s:"คุณศัพท์ な",f:"静か・きれい・有名",d:"ผันแบบเดียวกับคำนาม",tb:T(["รูป","ผัน","ตัวอย่าง"],[["ปัจจุบัน","〜です","静かです"],["ปฏิเสธ","〜じゃありません","静かじゃありません"],["อดีต","〜でした","静かでした"],["อดีตปฏิเสธ","〜じゃありませんでした","静かじゃありませんでした"]]),ex:[["この町は静かです。","เมืองนี้เงียบ"],["きのうは暇でした。","เมื่อวานว่าง"]]},
+ {k:"ขยายคำนาม",s:"高い山・静かな町",f:"いAdj ＋ N／なAdj な ＋ N",d:"คุณศัพท์ な ต้องเติม な ก่อนคำนาม",ex:[["高い山","ภูเขาสูง"],["静かな町","เมืองที่เงียบ"],["有名な人","คนมีชื่อเสียง"]]},
+ {k:"〜くて・〜で",s:"เชื่อมคุณศัพท์",f:"いAdj → 〜くて／なAdj → 〜で",d:"เชื่อมคุณศัพท์สองตัวในประโยคเดียว",ex:[["この部屋は広くて明るいです。","ห้องนี้กว้างและสว่าง"],["彼はハンサムで親切です。","เขาหล่อและใจดี"]]},
+ {k:"〜く・〜に",s:"ใช้เป็นคำวิเศษณ์",f:"いAdj → 〜く ＋ V／なAdj → 〜に ＋ V",d:"ใช้ขยายกริยา บอกว่าทำอย่างไร",ex:[["早く起きます。","ตื่นเช้า"],["静かに話してください。","กรุณาพูดเบาๆ"]]},
+ {k:"いい",s:"ผันพิเศษ",f:"いい → よくない・よかった・よくて",d:"いい ผันโดยใช้ よ เป็นฐาน",ex:[["天気がよかったです。","อากาศดี (อดีต)"]],n:"❌ いくない・いかった"},
+ {k:"きれい・きらい",s:"กับดัก: เป็นคุณศัพท์ な",f:"きれい・きらい・ゆうめい・しつれい",d:"ลงท้ายด้วย い แต่เป็นคุณศัพท์ な",ex:[["部屋はきれいじゃありません。","ห้องไม่สะอาด"]],n:"❌ きれくない → ✓ きれいじゃありません"}
+]},
+{id:"verb",t:"การผันกริยา",j:"動詞",ic:"gear",c:"#3a4a9c",items:[
+ {k:"3 กลุ่ม",s:"แบ่งกลุ่มกริยา",f:"ดูจากเสียงก่อน ます",d:"กลุ่ม 1 แบ่งย่อยตามเสียงก่อน ます ได้ 4 แบบ (ใช้ตอนผันรูป て・た) กลุ่ม 2 ส่วนใหญ่เป็นเสียง e แต่มีบางคำที่เป็นเสียง i ต้องจำ กลุ่ม 3 มีแค่ 2 คำ",tb:T(["กลุ่ม","เสียงก่อน ます","ตัวอย่าง (→ รูป て)"],[["1.1","い・ち・り","買います→買って・会います→会って・待ちます→待って・帰ります→帰って"],["1.2","み・び・に","飲みます→飲んで・読みます→読んで・遊びます→遊んで・死にます→死んで"],["1.3","き・ぎ","書きます→書いて・歩きます→歩いて・急ぎます→急いで・泳ぎます→泳いで"],["1.4","し","話します→話して・貸します→貸して・消します→消して・出します→出して"],["2 (เสียง e)","え段","食べます・寝ます・教えます・見せます"],["2 (เสียง i)","い段 (ต้องจำ)","起きます・着ます・います・見ます (และ 借ります・降ります・浴びます・できます)"],["3","จำ 2 คำ","します・来ます (รวม N＋します เช่น 勉強します・電話します)"]]),ex:[["毎日日本語を勉強します。","เรียนภาษาญี่ปุ่นทุกวัน"],["朝6時に起きます。","ตื่นตอน 6 โมงเช้า (起きます เป็นกลุ่ม 2)"]],n:"帰ります・入ります・知ります・切ります・走ります ก่อน ます เป็นเสียง i เหมือนกลุ่ม 2 แต่เป็น <b>กลุ่ม 1</b> (帰って・入って・知って)"},
+ {k:"ます形",s:"รูปสุภาพ",f:"Vます・Vません・Vました・Vませんでした",d:"ใช้กับคนที่ไม่สนิทหรือคนที่ต้องให้เกียรติ",tb:T(["รูป","ความหมาย","ตัวอย่าง"],[["Vます","ทำ / จะทำ","行きます"],["Vません","ไม่ทำ","行きません"],["Vました","ทำแล้ว","行きました"],["Vませんでした","ไม่ได้ทำ","行きませんでした"]]),ex:[["きのう学校へ行きませんでした。","เมื่อวานไม่ได้ไปโรงเรียน"]]},
+ {k:"Vる",s:"ปัจจุบัน・อนาคต กันเอง",f:"รูปพจนานุกรม (辞書形)",d:"รูปกันเองของ Vます",tb:T(["กลุ่ม","วิธีเปลี่ยน","ตัวอย่าง"],[["1","เสียง i → เสียง u","書き→書く・飲み→飲む・買い→買う"],["2","ตัด ます ＋ る","食べ→食べる・見→見る"],["3","จำ","します→する・来ます→来る"]]),ex:[["明日学校に行く。","พรุ่งนี้จะไปโรงเรียน"]]},
+ {k:"Vない",s:"ปฏิเสธ กันเอง",f:"รูป ない",d:"รูปกันเองของ Vません",tb:T(["กลุ่ม","วิธีเปลี่ยน","ตัวอย่าง"],[["1","เสียง i → เสียง a ＋ ない","書き→書かない・飲み→飲まない"],["2","ตัด ます ＋ ない","食べ→食べない"],["3","จำ","しない・来ない (こない)"]]),ex:[["今日は行かない。","วันนี้ไม่ไป"]],n:"เสียง い เปลี่ยนเป็น <b>わ</b> ไม่ใช่ あ เช่น 買います → 買わない"},
+ {k:"Vた",s:"อดีต กันเอง",f:"รูป た",d:"ผันแบบเดียวกับรูป て แค่เปลี่ยน て→た และ で→だ",ex:[["きのう映画を見た。","เมื่อวานดูหนัง"],["本を読んだ。","อ่านหนังสือแล้ว"]]},
+ {k:"て形",s:"รูป て (สำคัญที่สุด)",f:"ดูจากเสียงก่อน ます",d:"ใช้ต่อกับรูปประโยคอีกหลายแบบ",tb:T(["ก่อน ます","รูป て","ตัวอย่าง"],[["1.1 い・ち・り","って","買って・待って・帰って"],["1.2 み・び・に","んで","飲んで・遊んで・死んで"],["1.3 き","いて","書いて (行きます→行って)"],["1.3 ぎ","いで","泳いで"],["1.4 し","して","話して"],["กลุ่ม 2","ตัด ます＋て","食べて・見て"],["กลุ่ม 3","して・来て","して・来て"]]),ex:[["ちょっと待ってください。","รอสักครู่นะครับ"]],n:"ข้อยกเว้นเดียว: <b>行きます → 行って／行った</b>"},
+ {k:"可能形",s:"รูปสามารถ ...ได้",f:"Vます → Vれます／Vられます",d:"บอกว่าทำได้หรือทำไม่ได้ คำที่เป็นกรรมมักเปลี่ยนจาก を เป็น が",tb:T(["กลุ่ม","วิธีผัน","ตัวอย่าง"],[["1","เสียง i → เสียง e ＋ ます","書きます→書けます・飲みます→飲めます・話します→話せます・買います→買えます"],["2","ตัด ます ＋ られます","食べます→食べられます・見ます→見られます・起きます→起きられます・寝ます→寝られます"],["3","จำ","します→できます・来ます→来られます (こられます)"]]),ex:[["わたしは日本語が話せます。","ฉันพูดภาษาญี่ปุ่นได้"],["この漢字が読めません。","อ่านคันจินี้ไม่ออก"],["明日来られますか。","พรุ่งนี้มาได้ไหม"],["ピアノがひけます。","เล่นเปียโนได้"]],n:"ความหมายเดียวกันมีอีก 2 แบบ: <b>Vる ＋ ことができます</b> (話すことができます) และ <b>N ＋ ができます</b> (日本語ができます)"}
+]},
+{id:"te",t:"รูปประโยค",j:"て・ない・た",ic:"puzzle",c:"#c2477a",items:[
+ {k:"〜てください",s:"กรุณา...",f:"Vて ＋ ください",d:"ขอให้อีกฝ่ายทำอะไรบางอย่างแบบสุภาพ",ex:[["名前を書いてください。","กรุณาเขียนชื่อ"]]},
+ {k:"〜ています",s:"กำลัง... / อยู่ในสภาพ",f:"Vて ＋ います",d:"การกระทำที่กำลังเกิดขึ้น หรือสภาพที่เป็นอยู่",ex:[["雨が降っています。","ฝนกำลังตก"],["姉は結婚しています。","พี่สาวแต่งงานแล้ว"],["東京に住んでいます。","อาศัยอยู่ที่โตเกียว"]]},
+ {k:"〜てもいいです",s:"...ได้",f:"Vて ＋ もいいです(か)",d:"ขออนุญาต หรืออนุญาต",ex:[["写真をとってもいいですか。","ถ่ายรูปได้ไหม"]]},
+ {k:"〜てはいけません",s:"ห้าม...",f:"Vて ＋ はいけません",d:"บอกว่าห้ามทำ",ex:[["ここで食べてはいけません。","ห้ามกินที่นี่"]]},
+ {k:"〜て、〜",s:"...แล้วก็...",f:"Vて、Vて、V",d:"เรียงการกระทำตามลำดับ",ex:[["朝ご飯を食べて、学校へ行きます。","กินข้าวเช้าแล้วไปโรงเรียน"]]},
+ {k:"〜てから",s:"หลังจาก...แล้ว",f:"Vて ＋ から",d:"เน้นว่าทำอย่างแรกเสร็จก่อนแล้วจึงทำอย่างที่สอง",ex:[["宿題をしてから遊びます。","ทำการบ้านเสร็จแล้วค่อยเล่น"]]},
+ {k:"〜ないでください",s:"กรุณาอย่า...",f:"Vない ＋ でください",d:"ขอร้องไม่ให้ทำ",ex:[["忘れないでください。","อย่าลืมนะ"]]},
+ {k:"〜なければなりません",s:"ต้อง...",f:"Vない (ตัด い) ＋ ければなりません",d:"บอกสิ่งที่จำเป็นต้องทำ",ex:[["薬を飲まなければなりません。","ต้องกินยา"]]},
+ {k:"〜なくてもいいです",s:"ไม่...ก็ได้",f:"Vない (ตัด い) ＋ くてもいいです",d:"บอกว่าไม่จำเป็นต้องทำ",ex:[["明日は来なくてもいいです。","พรุ่งนี้ไม่ต้องมาก็ได้"]]},
+ {k:"〜たことがあります",s:"เคย...",f:"Vた ＋ ことがあります",d:"บอกประสบการณ์",ex:[["日本へ行ったことがあります。","เคยไปญี่ปุ่น"]]},
+ {k:"〜たり〜たりします",s:"...บ้าง ...บ้าง",f:"Vた ＋ り、Vた ＋ り します",d:"ยกตัวอย่างการกระทำบางอย่าง",ex:[["週末は本を読んだり映画を見たりします。","สุดสัปดาห์อ่านหนังสือบ้าง ดูหนังบ้าง"]]},
+ {k:"〜たほうがいいです",s:"ควรจะ...",f:"Vた ＋ ほうがいいです",d:"แนะนำว่าควรทำ",ex:[["早く寝たほうがいいです。","ควรนอนเร็วๆ"]],n:"ถ้าแนะนำว่าไม่ควรทำ ใช้ <b>Vない ＋ ほうがいいです</b>"}
+]},
+{id:"want",t:"อยาก・ชวน・ขอ",j:"たい・ましょう",ic:"heart",c:"#b5562a",items:[
+ {k:"〜がほしい",s:"อยากได้ (ของ)",f:"N が ほしいです",d:"บอกว่าอยากได้สิ่งของ ผันแบบคุณศัพท์ い",ex:[["新しいかばんがほしいです。","อยากได้กระเป๋าใหม่"]]},
+ {k:"〜たい",s:"อยาก (ทำ)",f:"Vます (ตัด ます) ＋ たいです",d:"บอกว่าอยากทำอะไร ผันแบบคุณศัพท์ い",ex:[["日本へ行きたいです。","อยากไปญี่ปุ่น"],["何も食べたくないです。","ไม่อยากกินอะไรเลย"]],n:"ใช้พูดถึงความต้องการของ<b>ตัวเอง</b> (หรือถามอีกฝ่าย)"},
+ {k:"〜ましょう",s:"...กันเถอะ",f:"Vます (ตัด ます) ＋ ましょう",d:"ชวนทำด้วยกัน",ex:[["行きましょう。","ไปกันเถอะ"]]},
+ {k:"〜ましょうか",s:"...ให้ไหม",f:"Vます (ตัด ます) ＋ ましょうか",d:"เสนอทำให้อีกฝ่าย",ex:[["手伝いましょうか。","ให้ช่วยไหม"]]},
+ {k:"〜ませんか",s:"...ด้วยกันไหม",f:"Vます (ตัด ます) ＋ ませんか",d:"ชวนอย่างสุภาพ",ex:[["一緒に食べませんか。","กินด้วยกันไหม"]]},
+ {k:"〜に行きます",s:"ไปเพื่อ...",f:"Vます (ตัด ます)／N ＋ に行きます",d:"บอกจุดประสงค์ของการไป",ex:[["映画を見に行きます。","ไปดูหนัง"],["買い物に行きます。","ไปช็อปปิ้ง"]]}
+]},
+{id:"exist",t:"มี・ให้・เปรียบเทียบ",j:"ある・あげる・より",ic:"gift",c:"#0f7fa8",items:[
+ {k:"あります・います",s:"มี, อยู่ + ตำแหน่ง",f:"สถานที่・สิ่งของ ＋ の ＋ ตำแหน่ง ＋ に ＋ N が あります／います",d:"あります ใช้กับสิ่งของและต้นไม้ います ใช้กับคนและสัตว์ ถ้าจะบอกตำแหน่งให้ละเอียด ใช้ ＿の＋ตำแหน่ง＋に",tb:T(["ตำแหน่ง","อ่าน","ความหมาย"],[["上","うえ","ข้างบน"],["下","した","ข้างล่าง"],["中","なか","ข้างใน"],["外","そと","ข้างนอก"],["前","まえ","ข้างหน้า"],["後ろ","うしろ","ข้างหลัง"],["となり","となり","ข้างๆ (ติดกัน ประเภทเดียวกัน)"],["横","よこ","ด้านข้าง"],["右・左","みぎ・ひだり","ขวา・ซ้าย"],["近く","ちかく","ใกล้ๆ"],["間","あいだ","ระหว่าง (A と B の間)"]]),ex:[["机の上に本があります。","มีหนังสืออยู่บนโต๊ะ"],["駅の前に銀行があります。","มีธนาคารอยู่หน้าสถานี"],["いすの下にねこがいます。","มีแมวอยู่ใต้เก้าอี้"],["郵便局は銀行と病院の間にあります。","ไปรษณีย์อยู่ระหว่างธนาคารกับโรงพยาบาล"]],n:"มี 2 รูปแบบ: <b>สถานที่ に N が あります</b> = ที่...มี N (เน้นว่ามีอะไร) / <b>N は สถานที่ に あります</b> = N อยู่ที่... (เน้นว่าอยู่ที่ไหน)"},
+ {k:"あげます",s:"(ฉัน) ให้",f:"คน に N を あげます",d:"ผู้พูดหรือคนอื่นให้ของกับอีกคน",ex:[["友達に花をあげました。","ให้ดอกไม้เพื่อน"]]},
+ {k:"もらいます",s:"ได้รับ",f:"คน に／から N を もらいます",d:"บอกว่าได้รับของจากใคร",ex:[["母に時計をもらいました。","ได้นาฬิกาจากแม่"]],n:"ใช้ได้ทั้ง <b>に</b> และ <b>から</b>"},
+ {k:"くれます",s:"(คนอื่น) ให้ฉัน",f:"คน が わたしに N を くれます",d:"คนอื่นให้ของกับผู้พูด (หรือคนในครอบครัว)",ex:[["友達がわたしにプレゼントをくれました。","เพื่อนให้ของขวัญฉัน"]],n:"ผู้รับเป็น<b>ฉัน</b> → くれます / ฉันเป็นผู้ให้ → あげます"},
+ {k:"〜てあげます",s:"ทำ...ให้ (คนอื่น)",f:"คน に Vて ＋ あげます",d:"ผู้พูดทำสิ่งดีๆ ให้คนอื่น",ex:[["友達に日本語を教えてあげました。","สอนภาษาญี่ปุ่นให้เพื่อน"],["妹の宿題を手伝ってあげました。","ช่วยทำการบ้านให้น้องสาว"]],n:"ถ้าพูดกับผู้ใหญ่หรือคนที่ต้องให้เกียรติ อาจฟังดูเหมือนทวงบุญคุณ"},
+ {k:"〜てもらいます",s:"ได้ให้คนอื่นทำให้",f:"คน に Vて ＋ もらいます",d:"มองจากฝั่งผู้รับ: เราได้รับการกระทำจากคนอื่น",ex:[["先生に作文を直してもらいました。","ได้ให้ครูช่วยแก้เรียงความ"],["友達に駅まで送ってもらいました。","เพื่อนไปส่งที่สถานีให้"]]},
+ {k:"〜てくれます",s:"(คนอื่น) ทำ...ให้ฉัน",f:"คน が (わたしに) Vて ＋ くれます",d:"มองจากฝั่งผู้ให้: คนอื่นทำสิ่งดีๆ ให้เรา",ex:[["母がお弁当を作ってくれました。","แม่ทำข้าวกล่องให้"],["友達が写真をとってくれました。","เพื่อนถ่ายรูปให้"]],n:"ความหมายเดียวกันแต่มองคนละฝั่ง: <b>てもらう</b> ผู้ทำตามด้วย に / <b>てくれる</b> ผู้ทำตามด้วย が"},
+ {k:"AはBより〜",s:"A ...กว่า B",f:"A は B より Adj です",d:"เปรียบเทียบสองอย่าง",ex:[["東京は大阪より大きいです。","โตเกียวใหญ่กว่าโอซาก้า"]]},
+ {k:"どちらが〜",s:"อันไหน...กว่า",f:"A と B と どちらが Adj ですか",d:"ถามให้เลือกระหว่างสองอย่าง ตอบด้วย 〜のほうが",ex:[["犬とねこと、どちらが好きですか。","ชอบหมาหรือแมวมากกว่า"],["ねこのほうが好きです。","ชอบแมวมากกว่า"]]},
+ {k:"いちばん",s:"...ที่สุด",f:"〜の中で 何／どこ／だれ が いちばん Adj ですか",d:"เปรียบเทียบตั้งแต่สามอย่างขึ้นไป",ex:[["くだものの中で何がいちばん好きですか。","ในบรรดาผลไม้ ชอบอะไรที่สุด"]]}
+]},
+{id:"cond",t:"เงื่อนไข",j:"たら・なら",ic:"fork",c:"#4f7a28",items:[
+ {k:"もし〜たら",s:"ถ้า... / พอ...แล้ว",f:"(もし) Vた／Adjかった／Nだった ＋ ら、〜",d:"สมมติว่าถ้าเกิดสิ่งหนึ่ง แล้วจะเป็นอย่างไร ใช้กับเรื่องที่แน่นอนว่าจะเกิดก็ได้ (แปลว่า พอ...แล้ว)",ex:[["もし雨が降ったら、行きません。","ถ้าฝนตกจะไม่ไป"],["もしお金があったら、旅行したいです。","ถ้ามีเงินอยากไปเที่ยว"],["安かったら、買います。","ถ้าถูกจะซื้อ"],["駅に着いたら、電話してください。","พอถึงสถานีแล้วโทรมานะ"]],n:"もし ไม่ใส่ก็ได้ ใส่เพื่อเน้นว่าเป็น<b>การสมมติ</b> / รูปปฏิเสธใช้ Vなかったら เช่น 来なかったら"},
+ {k:"〜なら",s:"ถ้า (เป็นเรื่อง)...ล่ะก็",f:"N／Vる／Adj ＋ なら、〜",d:"รับเรื่องที่อีกฝ่ายพูดถึง แล้วให้คำแนะนำหรือความเห็น",ex:[["日本へ行くなら、京都がいいですよ。","ถ้าจะไปญี่ปุ่น เกียวโตดีนะ"],["すしなら、あの店がおいしいです。","ถ้าเป็นซูชิ ร้านนั้นอร่อย"],["暇なら、手伝ってください。","ถ้าว่างก็ช่วยหน่อย"]],n:"なAdj กับคำนามต่อ なら ได้เลย ไม่ต้องใส่ だ / ต่างจาก たら ตรงที่ なら มักใช้ตอบรับสิ่งที่อีกฝ่ายพูด"}
+]},
+{id:"qty",t:"จำนวน・ขอบเขต",j:"だけ・しか・ぐらい",ic:"ruler",c:"#9a6b00",items:[
+ {k:"だけ",s:"แค่, เท่านั้น",f:"N／จำนวน ＋ だけ",d:"จำกัดขอบเขต ใช้ได้ทั้งประโยคบอกเล่าและปฏิเสธ",ex:[["一つだけください。","ขอแค่อันเดียว"],["日曜日だけ休みです。","หยุดแค่วันอาทิตย์"],["ひらがなだけ書けます。","เขียนได้แค่ฮิรางานะ"]]},
+ {k:"しか〜ません",s:"มีแค่... (รู้สึกว่าน้อย)",f:"N／จำนวน ＋ しか ＋ ปฏิเสธ",d:"บอกว่ามีน้อย ไม่พอ ต้องตามด้วยรูปปฏิเสธเสมอ",ex:[["財布に100円しかありません。","ในกระเป๋ามีเงินแค่ 100 เยน"],["朝ご飯はパンしか食べませんでした。","มื้อเช้ากินแค่ขนมปัง"],["日本語は少ししか話せません。","พูดภาษาญี่ปุ่นได้แค่นิดหน่อย"]],n:"❌ 100円しかあります → ✓ 100円しかありません / <b>だけ</b> เป็นกลางๆ ส่วน <b>しか</b> ให้ความรู้สึกว่าน้อยเกินไป"},
+ {k:"ごろ・ぐらい",s:"ประมาณ",f:"เวลา ＋ ごろ／ปริมาณ ＋ ぐらい",d:"ごろ ใช้กับเวลาที่เป็นจุด ぐらい ใช้กับปริมาณหรือระยะเวลา",ex:[["7時ごろ起きます。","ตื่นประมาณ 7 โมง"],["1時間ぐらい勉強します。","เรียนประมาณ 1 ชั่วโมง"]]}
+]},
+{id:"etc",t:"อื่นๆ ที่ออกบ่อย",j:"から・とき・でしょう",ic:"spark",c:"#5d6681",items:[
+ {k:"何か・何も",s:"อะไรสักอย่าง / ไม่...อะไรเลย",f:"คำถาม ＋ か／คำถาม ＋ も ＋ ปฏิเสธ",d:"ใช้แบบเดียวกันกับ だれか・だれも・どこか・どこも",ex:[["何か飲みますか。","จะดื่มอะไรสักอย่างไหม"],["いいえ、何もいりません。","ไม่ ไม่ต้องการอะไรเลย"]]},
+ {k:"〜から",s:"เพราะ",f:"ประโยค ＋ から、ประโยค",d:"บอกเหตุผล",ex:[["雨ですから、出かけません。","เพราะฝนตก เลยไม่ออกไปไหน"]]},
+ {k:"〜が",s:"แต่",f:"ประโยค ＋ が、ประโยค",d:"เชื่อมสองประโยคที่ขัดกัน",ex:[["高いですが、おいしいです。","แพงแต่อร่อย"]]},
+ {k:"そして・でも",s:"คำเชื่อม",f:"そして／でも／それから",d:"そして = และ / でも = แต่ / それから = หลังจากนั้น",ex:[["シャワーを浴びました。それから寝ました。","อาบน้ำ แล้วก็นอน"]]},
+ {k:"もう・まだ",s:"แล้ว / ยัง",f:"もう Vました／まだ Vていません",d:"ถามหรือตอบว่าทำแล้วหรือยัง",ex:[["もう昼ご飯を食べましたか。","กินข้าวเที่ยงแล้วหรือยัง"],["いいえ、まだ食べていません。","ยัง ยังไม่ได้กิน"]],n:"ตอบว่ายังไม่ได้ทำใช้ <b>まだ〜ていません</b> ไม่ใช่ まだ〜ませんでした"},
+ {k:"あまり・ぜんぜん",s:"ไม่ค่อย / ไม่...เลย",f:"あまり／ぜんぜん ＋ ปฏิเสธ",d:"ต้องตามด้วยรูปปฏิเสธเสมอ",ex:[["あまり好きじゃありません。","ไม่ค่อยชอบ"],["ぜんぜんわかりません。","ไม่เข้าใจเลย"]]},
+ {k:"〜とき",s:"ตอนที่...",f:"Vる／Adj／N の ＋ とき",d:"บอกช่วงเวลาที่เกิดเหตุการณ์",ex:[["子どものとき、よく泳ぎました。","ตอนเด็กว่ายน้ำบ่อย"],["ひまなとき、本を読みます。","ตอนว่างจะอ่านหนังสือ"]]},
+ {k:"〜まえに",s:"ก่อน...",f:"Vる／N の ＋ まえに",d:"ทำอย่างหนึ่งก่อนอีกอย่าง",ex:[["寝るまえに歯を磨きます。","แปรงฟันก่อนนอน"],["食事のまえに手を洗います。","ล้างมือก่อนกินข้าว"]],n:"ใช้ <b>Vる</b> เสมอ แม้เรื่องจะเกิดในอดีต"},
+ {k:"〜でしょう",s:"คงจะ...",f:"ประโยค ＋ でしょう",d:"คาดเดา เช่น พยากรณ์อากาศ",ex:[["明日は雨でしょう。","พรุ่งนี้ฝนคงจะตก"]]},
+ {k:"〜なります",s:"กลายเป็น...",f:"いAdj → くなります／なAdj・N → になります",d:"บอกการเปลี่ยนแปลง",ex:[["寒くなりました。","หนาวขึ้นแล้ว"],["兄は先生になりました。","พี่ชายได้เป็นครูแล้ว"]]},
+ {k:"〜つもりです",s:"ตั้งใจว่าจะ...",f:"Vる／Vない ＋ つもりです",d:"บอกแผนหรือความตั้งใจของตัวเอง",ex:[["来年、日本へ行くつもりです。","ปีหน้าตั้งใจว่าจะไปญี่ปุ่น"],["今日はお酒を飲まないつもりです。","วันนี้ตั้งใจว่าจะไม่ดื่มเหล้า"],["夏休みに何をするつもりですか。","ปิดเทอมหน้าร้อนตั้งใจจะทำอะไร"]]},
+ {k:"〜かもしれません",s:"อาจจะ...",f:"Vる・Vた・Vない／いAdj／なAdj・N ＋ かもしれません (かもしれない)",d:"คาดว่าอาจเป็นอย่างนั้น ความมั่นใจต่ำกว่า でしょう รูปกันเองคือ かもしれない",ex:[["明日は雨が降るかもしれません。","พรุ่งนี้ฝนอาจจะตก"],["彼は来ないかもしれない。","เขาอาจจะไม่มา"],["あの人は先生かもしれません。","คนนั้นอาจจะเป็นครู"]],n:"なAdj กับคำนามไม่ต้องใส่ だ: ❌ 先生だかもしれません → ✓ 先生かもしれません / ความมั่นใจ: <b>でしょう</b> (คงจะ) &gt; <b>かもしれません</b> (อาจจะ)"},
+ {k:"あと",s:"อีก... (ที่เหลือ)",f:"あと ＋ จำนวน／Vた ＋ あとで",d:"あと＋จำนวน = อีกเท่านี้ที่เหลืออยู่ และ Vたあとで = หลังจากทำ...แล้ว",ex:[["あと5分で電車が来ます。","อีก 5 นาทีรถไฟจะมา"],["試験まであと3日です。","อีก 3 วันจะถึงวันสอบ"],["食べたあとで、薬を飲みます。","กินยาหลังจากกินข้าว"]]}
+]}
+];
+
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+let seen=new Set();
+try{seen=new Set(JSON.parse(localStorage.getItem("n5gram-seen")||"[]"))}catch(e){}
+const saveSeen=()=>{try{localStorage.setItem("n5gram-seen",JSON.stringify([...seen]))}catch(e){}};
+let view=null,openK=null;
+const map=$("map"),nodesEl=$("nodes"),svg=$("lines");
+const total=G.reduce((a,g)=>a+g.items.length,0);
+
+function speak(t){
+  try{const u=new SpeechSynthesisUtterance(t.replace(/[（(][^）)]*[）)]/g,""));u.lang="ja-JP";u.rate=.85;
+  const v=speechSynthesis.getVoices().find(v=>v.lang&&v.lang.startsWith("ja"));if(v)u.voice=v;speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){}
+}
+function crumb(){
+  const g=view===null?null:G[view];
+  $("crumb").innerHTML=g?`<button id="back">← แผนที่ทั้งหมด</button><span>${esc(g.t)}</span>`:`<span>อ่านแล้ว ${[...seen].length} / ${total} หัวข้อ</span>`;
+  if(g)$("back").onclick=()=>go(null);
+  $("hint").textContent=g?`${g.items.length} หัวข้อในกลุ่ม "${g.t}" · จุดสีเขียว = อ่านแล้ว`:"กดไอคอนกลุ่มเพื่อแตกหัวข้อแกรมม่า";
+}
+function iconNode(g,i){return `<button class="node" data-g="${i}" style="--c:${g.c}"><span class="ic"><svg viewBox="0 0 24 24">${IC[g.ic]}</svg></span><span class="lb">${esc(g.t)}<small class="jp">${esc(g.j)}</small></span></button>`}
+function build(){
+  crumb();
+  map.classList.toggle("ov",view===null);
+  if(view===null){
+    nodesEl.innerHTML=`<button class="node hub" id="hub" style="--c:var(--band)"><span class="ic"><div><svg viewBox="0 0 24 24">${IC.book}</svg><b>N5文法</b></div></span></button>`+G.map(iconNode).join("");
+  }else{
+    const g=G[view];
+    nodesEl.innerHTML=`<button class="node hub" id="hub" style="--c:${g.c}"><span class="ic" style="background:${g.c};box-shadow:0 4px 0 color-mix(in srgb,${g.c} 60%,#000)"><div><svg viewBox="0 0 24 24">${IC[g.ic]}</svg></div></span><span class="lb">${esc(g.t)}<small class="jp">${esc(g.j)}</small></span></button>`+
+      g.items.map((it,i)=>`<button class="pill${seen.has(g.id+i)?" seen":""}" data-i="${i}" style="--c:${g.c};animation-delay:${i*25}ms"><b>${esc(it.k)}</b><small>${esc(it.s)}</small></button>`).join("");
+  }
+  layout();
+}
+function layout(){
+  const W=map.clientWidth,wide=W>=(view===null?760:(G[view].items.length>9?980:820));
+  const kids=[...nodesEl.children].slice(1),hub=nodesEl.children[0];
+  const sz=kids.map(k=>[k.offsetWidth,k.offsetHeight]);
+  let H,cx,cy,pos=[];
+  if(view===null){
+    const n=kids.length;
+    if(W>=640){const r=Math.min(W/2-90,300);H=2*r+170;cx=W/2;cy=H/2;pos=kids.map((_,i)=>{const a=-Math.PI/2+i*2*Math.PI/n;return[cx+r*Math.cos(a),cy+r*Math.sin(a)]})}
+    else{const rx=W/2-44,ry=255;H=2*ry+130;cx=W/2;cy=H/2;pos=kids.map((_,i)=>{const a=-Math.PI/2+i*2*Math.PI/n;return[cx+rx*Math.cos(a),cy+ry*Math.sin(a)]})}
+  }else if(wide){
+    const n=kids.length,maxW=Math.max(...sz.map(s=>s[0]));
+    H=view===null?620:Math.max(560,Math.min(720,300+n*28));
+    cx=W/2;cy=H/2;
+    const rx=W/2-maxW/2-24,ry=H/2-Math.max(...sz.map(s=>s[1]))/2-22;
+    pos=kids.map((_,i)=>{const a=-Math.PI/2+i*2*Math.PI/n;return[cx+rx*Math.cos(a),cy+ry*Math.sin(a)]});
+  }else{
+    const cols=W>=520?3:2,cw=(W-24)/cols,rh=84,top=200;
+    cx=W/2;cy=90;
+    pos=kids.map((_,i)=>[12+cw*(i%cols+.5),top+Math.floor(i/cols)*rh]);
+    H=top+Math.ceil(kids.length/cols)*rh-rh/2+56;
+  }
+  map.style.height=H+"px";
+  hub.style.left=cx+"px";hub.style.top=cy+"px";
+  kids.forEach((k,i)=>{let[x,y]=pos[i];const hw=sz[i][0]/2+8;x=Math.max(hw,Math.min(W-hw,x));k.style.left=x+"px";k.style.top=y+"px";pos[i]=[x,y]});
+  const col=view===null?null:G[view].c;
+  svg.setAttribute("viewBox",`0 0 ${W} ${H}`);
+  svg.innerHTML=pos.map(([x,y],i)=>{
+    const c=col||G[i].c;
+    const d=(wide||view===null)?`M${cx},${cy} Q${(cx+x)/2+(y-cy)*.12},${(cy+y)/2-(x-cx)*.12} ${x},${y}`:`M${cx},${cy+40} C${cx},${(cy+y)/2+20} ${x},${(cy+y)/2-10} ${x},${y-30}`;
+    return `<path d="${d}" stroke="${c}"/>`;
+  }).join("");
+}
+function go(v){view=v;closeSheet();build();try{map.scrollIntoView({block:"nearest"})}catch(e){}}
+function openSheet(gi,i){
+  const g=G[gi],it=g.items[i];openK=[gi,i];
+  seen.add(g.id+i);saveSeen();
+  const pill=nodesEl.querySelector(`.pill[data-i="${i}"]`);if(pill)pill.classList.add("seen");
+  crumb();
+  const s=$("sheet");s.style.setProperty("--c",g.c);
+  s.innerHTML=`<button class="x" id="x" aria-label="ปิด">×</button>
+    <span class="chip">${esc(g.t)} · ${i+1}/${g.items.length}</span>
+    <h2>${esc(it.k)}</h2><p class="s">${esc(it.s)}</p>
+    <div class="form">${esc(it.f)}</div>
+    <p>${esc(it.d)}</p>
+    ${it.tb?`<h3>ตารางการผัน</h3>${it.tb}`:""}
+    <h3>ตัวอย่าง</h3>
+    <ul class="ex">${it.ex.map((e,k)=>`<li><span class="j">${esc(e[0])}</span><span class="t">${esc(e[1])}</span><button data-s="${k}" aria-label="ฟังเสียง">${SPK}</button></li>`).join("")}</ul>
+    ${it.n?`<div class="note"><b>ระวัง</b> · ${it.n}</div>`:""}
+    <div class="nav"><button id="pv" ${i===0?"disabled":""}>← ก่อนหน้า</button><button id="nx" ${i===g.items.length-1?"disabled":""}>ถัดไป →</button></div>`;
+  s.hidden=false;$("shade").hidden=false;s.scrollTop=0;
+  $("x").onclick=closeSheet;
+  $("pv").onclick=()=>openSheet(gi,i-1);$("nx").onclick=()=>openSheet(gi,i+1);
+  s.querySelectorAll(".ex button").forEach(b=>b.onclick=()=>speak(it.ex[+b.dataset.s][0]));
+  try{$("x").focus({preventScroll:true})}catch(e){}
+}
+function closeSheet(){$("sheet").hidden=true;$("shade").hidden=true;openK=null}
+
+nodesEl.addEventListener("click",e=>{
+  const n=e.target.closest(".node,.pill");if(!n)return;
+  if(n.id==="hub"){if(view!==null)go(null);return}
+  if(n.dataset.g!==undefined)go(+n.dataset.g);
+  else if(n.dataset.i!==undefined)openSheet(view,+n.dataset.i);
+});
+$("shade").onclick=closeSheet;
+document.addEventListener("keydown",e=>{
+  if(e.key==="Escape"){if(openK)closeSheet();else if(view!==null)go(null)}
+  if(openK&&(e.key==="ArrowRight"||e.key==="ArrowLeft")){const[gi,i]=openK,j=i+(e.key==="ArrowRight"?1:-1);if(j>=0&&j<G[gi].items.length)openSheet(gi,j)}
+});
+let lw=0;const ro=new ResizeObserver(()=>{if(map.clientWidth!==lw){lw=map.clientWidth;layout()}});ro.observe(map);
+try{speechSynthesis.getVoices()}catch(e){}
+build();
+try{document.fonts.ready.then(layout)}catch(e){}
+}
+</script>
+</body>
+</html>
